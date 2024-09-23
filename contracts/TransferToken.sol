@@ -4,11 +4,14 @@ pragma solidity ^0.8.0;
 /// @title TransferToken
 /// @dev 转账合约（通过合约调用，将指定的Token余额从合约地址转到目标地址）
 contract TransferToken {
-    // 合约部署者
-    address owner;
+    // USafe合约地址
+    address admin;
+    // 多签地址, 发送多签转账交易地址
+    address multiSignAddr;
+    // 待签名记录
 
     /// @notice 记录调用合约转账token的事件
-    /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的owner相同
+    /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的admin相同
     /// @param _from 付款地址，即转账合约地址
     /// @param _to 收款地址
     /// @param _amount 转账金额
@@ -18,8 +21,11 @@ contract TransferToken {
     /// @dev 在函数中需要设置合约拥有者为交易的最初调用者和Token合约地址，主要用于部署USafe合约时，
     ///      批量创建此合约，返回的合约地址作为商户的一级和二级地址；
     constructor() {
+        // isBind = false;
+        admin = msg.sender;
         assembly {
-            sstore(owner.slot, origin())
+            // sstore(admin.slot, origin())
+            sstore(multiSignAddr.slot, 0)
         }
     }
 
@@ -30,7 +36,7 @@ contract TransferToken {
     /// @param _to 接收token的地址
     /// @param _amount 转账的Token数量
     function Transfer(address _tokenAddr, address _to, uint256 _amount) external {
-        require(msg.sender == owner, "caller is not contract owner");
+        require(msg.sender == multiSignAddr, "caller is not multi sign address");
         bytes memory callData = abi.encodeWithSignature("transfer(address,uint256)", _to, _amount);
         assembly {
             let result := call(gas(), _tokenAddr, 0, add(callData, 0x20), mload(callData), 0, 0)
@@ -41,5 +47,22 @@ contract TransferToken {
 
         // 判断转账状态
         emit TransferERC20Token(msg.sender, address(this), _to, _amount);
+    }
+
+    // 修改地址(首次由usafe合约地址设置)
+    function ChangeAddr(address _multiSignAddr) external {
+        if(multiSignAddr == address(0)) {
+            // 首次设置
+            require(msg.sender == admin, "caller is not contract admin");
+        } else {
+            require(msg.sender == multiSignAddr, "The caller is not the original multisigner address");
+        }
+        
+        multiSignAddr = _multiSignAddr;
+        // 更新多签记录中的签名地址
+    }
+
+    function GetMultiSignAddr() view external returns(address)  {
+        return multiSignAddr;
     }
 }

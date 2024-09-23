@@ -2,7 +2,7 @@
   "name": "transaction_confirmation_dapp",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,13 +11,15 @@
     "contract:deploy": "npx hardhat run scripts/deploy.mjs --network sepolia"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.31",
     "vue3-toastify": "^0.2.2",
     "web3": "^4.11.0"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "autoprefixer": "^10.4.19",
     "dotenv": "^16.4.5",

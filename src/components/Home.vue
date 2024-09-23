@@ -3,17 +3,17 @@
     <span class="text-2xl font-semibold text-title">待确认交易</span>
     <div class="bg-card rounded-lg shadow-md p-4 text-text">
       <div class="flex border-b border-gray-700 pb-2 mb-2">
-        <div class="w-1/4 font-semibold">Round</div>
-        <div class="w-1/4 font-semibold">Prize Pool</div>
-        <div class="w-1/4 font-semibold">Players</div>
-        <div class="w-1/4 font-semibold">Status</div>
+        <div class="w-1/5 font-semibold">Round</div>
+        <div class="w-1/5 font-semibold">Prize Pool</div>
+        <div class="w-1/5 font-semibold">Players</div>
+        <div class="w-1/5 font-semibold">Status</div>
       </div>
       <div class="flex">
-        <div class="w-1/4">{{ round }}</div>
-        <div class="w-1/4">{{ prizePool }} ETH</div>
-        <div class="w-1/4">{{ players.length }}</div>
+        <div class="w-1/5">{{ round }}</div>
+        <div class="w-1/5">{{ prizePool }} ETH</div>
+        <div class="w-1/5">{{ players.length }}</div>
         <div
-          :class="['w-1/4', status == 1 ? 'text-green-500' : 'text-red-500']"
+          :class="['w-1/5', status == 1 ? 'text-green-500' : 'text-red-500']"
         >
           {{ status == 1 ? "RUNNING" : "NOT RUNNING" }}
         </div>
