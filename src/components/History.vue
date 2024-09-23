@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-col space-y-4">
-    <span class="text-2xl font-semibold text-title">History</span>
+    <span class="text-2xl font-semibold text-title">已签名交易</span>
     <div
       class="overflow-y-auto h-72 bg-card rounded-lg shadow-md p-4 text-text"
     >

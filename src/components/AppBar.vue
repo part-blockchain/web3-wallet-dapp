@@ -3,7 +3,7 @@
     <div class="max-w-screen-xl mx-auto flex items-center justify-between p-4">
       <div class="flex items-center space-x-3 rtl:space-x-reverse">
         <span class="text-2xl font-semibold text-title whitespace-nowrap">
-          Lottery
+          交易确认系统
         </span>
       </div>
       <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">

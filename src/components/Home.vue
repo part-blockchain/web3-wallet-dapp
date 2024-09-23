@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-col space-y-4">
-    <span class="text-2xl font-semibold text-title">Home</span>
+    <span class="text-2xl font-semibold text-title">待确认交易</span>
     <div class="bg-card rounded-lg shadow-md p-4 text-text">
       <div class="flex border-b border-gray-700 pb-2 mb-2">
         <div class="w-1/4 font-semibold">Round</div>

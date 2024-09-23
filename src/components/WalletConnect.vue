@@ -3,9 +3,9 @@
     v-if="!isWalletConnected"
     class="bg-card rounded-lg shadow-md p-4 text-text text-center"
   >
-    <h2 class="text-xl font-semibold text-title mb-4">Connect Your Wallet</h2>
+    <h2 class="text-xl font-semibold text-title mb-4">连接钱包</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-      Please connect your wallet to access the lottery features.
+      请连接您的硬件钱包以登陆交易确认系统。
     </p>
     <!-- Show this message if MetaMask is not installed -->
     <p v-if="!isMetaMaskInstalled" class="text-sm text-red-500 mb-4">
