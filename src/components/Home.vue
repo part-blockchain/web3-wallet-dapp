@@ -10,7 +10,8 @@
         <div class="w-1/6 font-semibold">提现金额</div>
         <div class="w-1/6 font-semibold">状态</div>
       </div>
-      <p class="flex">
+
+      <!-- <p class="flex">
         <div class="w-1/6">{{ round }}</div>
         <div class="w-1/6">{{ prizePool }} ETH</div>
         <div class="w-1/6">{{ players.length }}</div>
@@ -19,7 +20,7 @@
         >
           {{ status == 1 ? "RUNNING" : "NOT RUNNING" }}
         </div>
-      </p>
+      </p> -->
       {{ displayRecords }}
       <div class="mt-4">
         <p
@@ -58,6 +59,9 @@ const status = ref("");
 const players = ref([]);
 const loading = ref(false);
 
+// 数据列表
+// const dataList;
+
 const fetchContractData = async () => {
   loading.value = true;
   try {
@@ -66,6 +70,8 @@ const fetchContractData = async () => {
     prizePool.value = walletStore.provider.utils.fromWei(prize, "ether");
     players.value = await walletStore.contract.methods.getPlayers().call();
     status.value = await walletStore.contract.methods.status().call();
+    // 获取数据列表
+
   } catch (error) {
     toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Fetch Contract Data Error:", error);
