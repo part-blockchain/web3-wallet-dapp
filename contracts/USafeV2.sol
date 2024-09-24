@@ -1,5 +1,6 @@
 /*
-1.支持多签
+升级：
+1.支持保存一级地址列表
 
 */
 // SPDX-License-Identifier: MIT
@@ -21,24 +22,6 @@ contract USafeV2 {
     // 一级地址列表
     address[] levelOneAddrList;
 
-    // 多签列表
-    struct MultiSign {
-        // 记录Id(去重)
-        uint256 recordId;
-        // 二级地址
-        address levelTwoAddr;
-        // 接收地址
-        address receiver;
-        // 转账金额
-        uint256 amount;
-        // 状态
-        uint8 state;  // 0: 管理员已签名， 1: 多签地址已签名
-    }
-
-    // 多签记录
-    MultiSign[] multiSignRecords;
-    mapping(uint256 => MultiSign) mapMultiSignRecord;
-
     /// @notice 记录批量创建商户一级，二级地址成功的事件
     /// @dev 批量创建成功后调用事件
     /// @param _levelOneAddrList 商户一级地址列表
@@ -49,14 +32,6 @@ contract USafeV2 {
     /// @dev 新增成功后调用事件
     /// @param _levelTwoAddrList 新增的二级地址列表
     event BatchAddLevelTwoAddr(address[] _levelTwoAddrList);
-
-    /// @notice 转账请求事件
-    /// @param _recordId 记录Id
-    /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的admin相同
-    /// @param _levelTwoAddr 付款地址，即转账合约地址
-    /// @param _to 收款地址
-    /// @param _amount 转账金额
-    event TransferRequestEvent(uint256 indexed _recordId, address indexed _caller, address indexed _levelTwoAddr, address _to, uint256 _amount);
 
     /// @notice 初始化函数，只初始化一次
     /// @dev 批量创建商户一级, 二级地址
@@ -164,45 +139,4 @@ contract USafeV2 {
     function getLevelSecAddrList() external view returns(address[] memory) {
         return levelTwoAddrList;
     }
-
-    function transferOwnerShip(address newAdmin) external {
-        require(msg.sender == admin, "caller is not contract admin");
-        admin = newAdmin;
-    }
-
-    /// @notice 转账请求(由admin发起)
-    /// @dev 根据Token合约地址，发起token转账请求，
-    ///      此请求目的：将本合约地址的Token数量转到目标地址。
-    /// @param _levelTwoAddr 二级地址，转账token的合约地址
-    /// @param _to 接收token的地址
-    /// @param _amount 转账的Token数量
-    function TransferRequest(address _levelTwoAddr, address _to, uint256 _amount) external {
-        require(msg.sender == admin, "caller is not contract admin");
-        MultiSign memory record;
-        record.levelTwoAddr = _levelTwoAddr;
-        record.receiver = _to;
-        record.amount = _amount;
-        // 管理员签名状态
-        record.state = 0;
-        bytes memory input = abi.encodePacked(admin, _levelTwoAddr, multiSignRecords.length);
-        record.recordId = uint256(keccak256(input));
-        mapMultiSignRecord[record.recordId] = record;
-        multiSignRecords.push(record);
-        // 判断转账状态
-        emit TransferRequestEvent(record.recordId, msg.sender, _levelTwoAddr, _to, _amount);
-    }
-
-    
-    /// @notice 交易确认
-    /// @dev 根据Token合约地址，发起token转账请求，
-    ///      此请求目的：将本合约地址的Token数量转到目标地址。
-    /// @param _recordId 多签记录Id
-    function ConfirmTransaction(uint256 _recordId) external {
-        require(msg.sender == admin, "caller is not contract admin");
-        MultiSign memory record = mapMultiSignRecord[_recordId];
-        require(record.state == 0, "The record id does not exist or the administrator does not sign or the multisigning has been completed");
-    }
-
-
-
 }

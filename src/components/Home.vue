@@ -3,21 +3,24 @@
     <span class="text-2xl font-semibold text-title">待确认交易</span>
     <div class="bg-card rounded-lg shadow-md p-4 text-text">
       <div class="flex border-b border-gray-700 pb-2 mb-2">
-        <div class="w-1/5 font-semibold">Round</div>
-        <div class="w-1/5 font-semibold">Prize Pool</div>
-        <div class="w-1/5 font-semibold">Players</div>
-        <div class="w-1/5 font-semibold">Status</div>
+        <div class="w-1/6 font-semibold">记录ID</div>
+        <div class="w-1/6 font-semibold">Token地址</div>
+        <div class="w-1/6 font-semibold">转账合约地址</div>
+        <div class="w-1/6 font-semibold">接收Token地址</div>
+        <div class="w-1/6 font-semibold">提现金额</div>
+        <div class="w-1/6 font-semibold">状态</div>
       </div>
-      <div class="flex">
-        <div class="w-1/5">{{ round }}</div>
-        <div class="w-1/5">{{ prizePool }} ETH</div>
-        <div class="w-1/5">{{ players.length }}</div>
+      <p class="flex">
+        <div class="w-1/6">{{ round }}</div>
+        <div class="w-1/6">{{ prizePool }} ETH</div>
+        <div class="w-1/6">{{ players.length }}</div>
         <div
-          :class="['w-1/5', status == 1 ? 'text-green-500' : 'text-red-500']"
+          :class="['w-1/6', status == 1 ? 'text-green-500' : 'text-red-500']"
         >
           {{ status == 1 ? "RUNNING" : "NOT RUNNING" }}
         </div>
-      </div>
+      </p>
+      {{ displayRecords }}
       <div class="mt-4">
         <p
           id="helper-text-explanation"
@@ -46,6 +49,7 @@
 import { ref, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
+
 
 const walletStore = useWalletStore();
 const round = ref(0);
