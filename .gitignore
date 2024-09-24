@@ -26,3 +26,5 @@ dist-ssr
 artifacts
 cache
 .env
+.history
+.vscode
