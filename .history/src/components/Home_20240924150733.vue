@@ -2,7 +2,7 @@
   <section class="flex flex-col space-y-4">
     <span class="text-2xl font-semibold text-title">Home</span>
     <div class="bg-card rounded-lg shadow-md p-4 text-text">
-      <!-- <div class="flex border-b border-gray-700 pb-2 mb-2">
+      <div class="flex border-b border-gray-700 pb-2 mb-2">
         <div class="w-1/4 font-semibold">Round</div>
         <div class="w-1/4 font-semibold">Prize Pool</div>
         <div class="w-1/4 font-semibold">Players</div>
@@ -15,37 +15,7 @@
         <div :class="['w-1/4', status == 1 ? 'text-green-500' : 'text-red-500']">
           {{ status == 1 ? "RUNNING" : "NOT RUNNING" }}
         </div>
-      </div> -->
-      <el-table :data="tableData" row-key="id">
-        <el-table-column prop="round" label="Round" width="100px" />
-        <el-table-column type="expand">
-          <template #default="props">
-            <div class="p-[10px]" style="box-sizing: border-box;" v-if="props.row.list?.length">
-              详情
-              <el-table :data="props.row.list" :size="'small'">
-                <el-table-column prop="round" width="100px" label="Round" />
-                <el-table-column prop="prize" width="100px" label="Prize Pool" />
-                <el-table-column prop="players" width="100px" label="Players" />
-                <el-table-column prop="status" width="100px" label="Status" />
-                <el-table-column prop="status" width="100px" label="操作">
-                  <template #default="{ row }">
-                    <el-button type="text" size="small" @click="handleEdit(row)">Edit</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="prize" label="Prize Pool" />
-        <el-table-column prop="players" label="Players" />
-        <el-table-column prop="status" label="Status">
-          <template #default="{ row }">
-            <span :class="[row.status == 1 ? 'text-green-500' : 'text-red-500']">
-              {{ row.status == 1 ? "RUNNING" : "NOT RUNNING" }}
-            </span>
-          </template>
-        </el-table-column>
-      </el-table>
+      </div>
       <div class="mt-4">
         <p id="helper-text-explanation" class="text-sm text-gray-500 dark:text-gray-400">
           Ticket fee should be 0.005 ether
@@ -60,7 +30,24 @@
         <div v-if="loading" class="text-sm text-gray-500">Processing...</div>
       </div>
     </div>
-
+    <el-table :data="tableData" class="bg-card rounded-lg shadow-md p-4 text-text" row-key="id">
+      <el-table-column type="expand">
+        <template #default="props">
+          <div class="p-[10px]">
+            <el-table :data="props.row.children">
+              <el-table-column prop="round" label="Round" />
+              <el-table-column prop="prize" label="Prize Pool" />
+              <el-table-column prop="players" label="Players" />
+              <el-table-column prop="status" label="Status" />
+            </el-table>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="round" label="Round" />
+      <el-table-column prop="prize" label="Prize Pool" />
+      <el-table-column prop="players" label="Players" />
+      <el-table-column prop="status" label="Status" />
+    </el-table>
   </section>
 </template>
 
@@ -75,39 +62,33 @@ const prizePool = ref(0);
 const status = ref("");
 const players = ref([]);
 const loading = ref(false);
-const tableData = ref([]);
-
+const tableData = ref([
+  {
+    id: 3,
+    round: 'round',
+    prize: 'prize',
+    players: 'players',
+    status: 'status',
+    // children: [
+    //   {
+    //     id: 31,
+    //     round: 'round',
+    //     prize: 'prize',
+    //     players: 'players',
+    //     status: 'status',
+    //   }
+    // ],
+  },
+]);
 
 const fetchContractData = async () => {
   loading.value = true;
   try {
     round.value = await walletStore.contract.methods.currentRound().call();
-    console.log(' round.value', round.value);
     const prize = await walletStore.contract.methods.getPrizePool().call();
-    console.log(' prize.value', prize.value);
     prizePool.value = walletStore.provider.utils.fromWei(prize, "ether");
-    console.log(' prizePool.value', prizePool.value);
     players.value = await walletStore.contract.methods.getPlayers().call();
-    console.log(' players.value', players.value);
     status.value = await walletStore.contract.methods.status().call();
-    console.log(' status.value', status.value);
-    tableData.value = [{
-      id: 3,
-      round: round.value,
-      prize: prizePool.value,
-      players: players.value.length,
-      status: status.value,
-      list: [{
-        id: 31,
-        round: round.value,
-        prize: prizePool.value,
-        players: players.value.length,
-        status: status.value,
-      }]
-    }];
-    console.log(' tableData.value', tableData.value);
-
-
   } catch (error) {
     toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Fetch Contract Data Error:", error);
@@ -141,46 +122,7 @@ const buyTicket = async () => {
   }
 };
 
-
-const handleEdit = (row) => {
-  console.log("Edit row:", row);
-};
 onMounted(() => {
   fetchContractData();
 });
 </script>
-<style>
-.el-table {
-  padding: 0;
-}
-
-.el-table th.el-table__cell {
-  background-color: #1e1e1e;
-}
-
-.el-table tr {
-  background-color: #1e1e1e;
-  color: #fff;
-}
-
-.el-table--fit {
-  background-color: transparent;
-}
-
-.el-table tr:hover {
-  background-color: #1e1e1e;
-}
-
-.el-table__empty-block {
-  background-color: #1e1e1e;
-}
-
-.el-table__expanded-cell {
-  background-color: #1e1e1e;
-}
-
-.el-table--enable-row-hover .el-table__body tr:hover>td.el-table__cell {
-  background-color: #1e1e1e;
-
-}
-</style>

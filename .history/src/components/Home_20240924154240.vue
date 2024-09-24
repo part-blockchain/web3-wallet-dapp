@@ -82,15 +82,10 @@ const fetchContractData = async () => {
   loading.value = true;
   try {
     round.value = await walletStore.contract.methods.currentRound().call();
-    console.log(' round.value', round.value);
     const prize = await walletStore.contract.methods.getPrizePool().call();
-    console.log(' prize.value', prize.value);
     prizePool.value = walletStore.provider.utils.fromWei(prize, "ether");
-    console.log(' prizePool.value', prizePool.value);
     players.value = await walletStore.contract.methods.getPlayers().call();
-    console.log(' players.value', players.value);
     status.value = await walletStore.contract.methods.status().call();
-    console.log(' status.value', status.value);
     tableData.value = [{
       id: 3,
       round: round.value,
