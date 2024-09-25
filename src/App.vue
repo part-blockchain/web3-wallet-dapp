@@ -28,13 +28,13 @@ const history = ref([]);
 
 const fetchContractData = async () => {
   try {
-    // Check if user is admin
-    isAdmin.value = await walletStore.contract.methods
-      .isManager(walletStore.walletAddress)
-      .call();
+    // // Check if user is admin
+    // isAdmin.value = await walletStore.contract.methods
+    //   .isManager(walletStore.walletAddress)
+    //   .call();
 
     // Fetch history from contract
-    history.value = await walletStore.contract.methods.getHistory().call();
+    // history.value = await walletStore.contract.methods.getHistory().call();
   } catch (error) {
     toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Error fetching contract data:", error);

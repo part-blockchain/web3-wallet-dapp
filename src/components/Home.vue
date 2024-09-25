@@ -87,58 +87,55 @@
 import { ref, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
+import { useConfigStore } from "../stores/configStore";
 
 const walletStore = useWalletStore();
+const configStore = useConfigStore();
 const recordId = ref(0);
-const prizePool = ref(0);
 const state = ref("");
 const levelTwoAddr = ref([]);
 const loading = ref(false);
 const tableData = ref([]);
 
-
 const fetchContractData = async () => {
+  await configStore.loadConfig();
   loading.value = true;
-  try {
-    recordId.value = await walletStore.contract.methods.currentRound().call();
-    console.log(' recordId.value', recordId.value);
-    const tokenAddr = await walletStore.contract.methods.getPrizePool().call();
-    console.log(' tokenAddr.value', tokenAddr.value);
-    prizePool.value = walletStore.provider.utils.fromWei(tokenAddr, "ether");
-    console.log(' prizePool.value', prizePool.value);
-    levelTwoAddr.value = await walletStore.contract.methods.getPlayers().call();
-    console.log(' levelTwoAddr.value', levelTwoAddr.value);
-    state.value = await walletStore.contract.methods.status().call();
-    console.log(' state.value', state.value);
+  try {    
+    tableData.value = [];
+
+    configStore.config.ethSeries.recordList.forEach(async (recordId, index) => {
+      // alert("recordId:" + recordId);
+      const multiSignRes = await walletStore.usafeContract.methods.getMultiSignRecord(recordId).call();
+      // console.log("tokenAddr:" , multiSignRes.tokenAddr);
+      // console.log("levelTwoAddr:" , multiSignRes.levelTwoAddr);
+      // console.log("receiver:" , multiSignRes.receiver);
+      // console.log("amount:" , multiSignRes.amount);
+      // console.log("state:" , multiSignRes.state);
+      const item = {
+        recordId: recordId,
+        tokenAddr: multiSignRes.tokenAddr,
+        levelTwoAddr: multiSignRes.tokenAddr,
+        receiver: multiSignRes.receiver,
+        amount: multiSignRes.amount,
+        state: multiSignRes.state,
+      }
+      tableData.value.push(item);
+  });
     // tableData.value = [{
     //   id: 3,
     //   recordId: recordId.value,
-    //   tokenAddr: prizePool.value,
-    //   levelTwoAddr: levelTwoAddr.value.length,
+    //   tokenAddr: tokenAddr.value,
+    //   levelTwoAddr: levelTwoAddr.value,
     //   state: state.value,
     //   list: [{
     //     id: 31,
-    //     recordId: recordId.value,
-    //     tokenAddr: prizePool.value,
-    //     levelTwoAddr: levelTwoAddr.value.length,
-    //     state: state.value,
+      //   recordId: recordId.value,
+      //   tokenAddr: tokenAddr.value,
+      //   levelTwoAddr: levelTwoAddr.value,
+      //   state: state.value,
     //   }]
     // }];
 
-
-    tableData.value = [{
-      id: 3,
-      recordId: recordId.value,
-      tokenAddr: prizePool.value,
-      levelTwoAddr: levelTwoAddr.value.length,
-      state: 0,
-    },{
-      id: 4,
-      recordId: 4,
-      tokenAddr: prizePool.value,
-      levelTwoAddr: levelTwoAddr.value.length,
-      state: 1,
-    }];
     console.log(' tableData.value', tableData.value);
 
 
@@ -151,28 +148,28 @@ const fetchContractData = async () => {
 };
 
 const buyTicket = async () => {
-  loading.value = true;
-  try {
-    const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
-    const gas = await walletStore.contract.methods.enter().estimateGas({
-      from: walletStore.walletAddress,
-      value: ticketPrice,
-    });
+  // loading.value = true;
+  // try {
+  //   const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
+  //   const gas = await walletStore.contract.methods.enter().estimateGas({
+  //     from: walletStore.walletAddress,
+  //     value: ticketPrice,
+  //   });
 
-    await walletStore.contract.methods.enter().send({
-      from: walletStore.walletAddress,
-      value: ticketPrice,
-      gas,
-    });
+  //   await walletStore.contract.methods.enter().send({
+  //     from: walletStore.walletAddress,
+  //     value: ticketPrice,
+  //     gas,
+  //   });
 
-    toast.success("Ticket purchased successfully!");
-    await fetchContractData();
-  } catch (error) {
-    toast.error(`Failed to buy ticket: ${error.message}`);
-    console.error("Buy Ticket Error:", error);
-  } finally {
-    loading.value = false;
-  }
+  //   toast.success("Ticket purchased successfully!");
+  //   await fetchContractData();
+  // } catch (error) {
+  //   toast.error(`Failed to buy ticket: ${error.message}`);
+  //   console.error("Buy Ticket Error:", error);
+  // } finally {
+  //   loading.value = false;
+  // }
 };
 
 
@@ -184,29 +181,30 @@ const handleConfirmTransaction = async (row) => {
     alert("交易已完成, 无须确认!");
     return;
   }
-  alert("hello:" + row.id);
+  // alert("hello:" + row.id);
+  
   loading.value = true;
-  try {
-    const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
-    const gas = await walletStore.contract.methods.enter().estimateGas({
-      from: walletStore.walletAddress,
-      value: ticketPrice,
-    });
+  // try {
+  //   const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
+  //   const gas = await walletStore.contract.methods.enter().estimateGas({
+  //     from: walletStore.walletAddress,
+  //     value: ticketPrice,
+  //   });
 
-    await walletStore.contract.methods.enter().send({
-      from: walletStore.walletAddress,
-      value: ticketPrice,
-      gas,
-    });
+  //   await walletStore.contract.methods.enter().send({
+  //     from: walletStore.walletAddress,
+  //     value: ticketPrice,
+  //     gas,
+  //   });
 
-    toast.success("Ticket purchased successfully!");
-    await fetchContractData();
-  } catch (error) {
-    toast.error(`Failed to buy ticket: ${error.message}`);
-    console.error("Buy Ticket Error:", error);
-  } finally {
-    loading.value = false;
-  }
+  //   toast.success("Ticket purchased successfully!");
+  //   await fetchContractData();
+  // } catch (error) {
+  //   toast.error(`Failed to buy ticket: ${error.message}`);
+  //   console.error("Buy Ticket Error:", error);
+  // } finally {
+  //   loading.value = false;
+  // }
 
 };
 onMounted(() => {

@@ -30,12 +30,13 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import Web3 from "web3";
-import { abi } from "../utils/abi";
 import { usafeAbi } from "../utils/usafeAbi";
 import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
+import { useConfigStore } from "../stores/configStore";
 
 const walletStore = useWalletStore();
+const configStore = useConfigStore();
 const isMetaMaskInstalled = ref(false);
 const loading = ref(false);
 const isWalletConnected = computed(() => walletStore.isWalletConnected);
@@ -54,20 +55,22 @@ const connectWallet = async () => {
     console.error("MetaMask is not installed.");
     return;
   }
-
   loading.value = true;
   const web3 = new Web3(window.ethereum || window.web3.currentProvider);
 
   walletStore.setProvider(web3);
   try {
+    // 加载配置文件
+    await configStore.loadConfig();
     const accounts = await walletStore.provider.eth.requestAccounts();
     walletStore.setWalletAddress(accounts[0]);
-    const contract = new web3.eth.Contract(abi, walletStore.contractAddress);
+
+    // 设置usafe合约地址
+    walletStore.setUSafeContractAddr(configStore.config.ethSeries.usafeAddr);
+    // console.log("usafeAbi======:", usafeAbi);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
-    console.log("usafeAbi======:", usafeAbi);
-
-
-    walletStore.setContract(contract, usafeContract);
+    
+    walletStore.setContract(usafeContract);
     toast.success("Wallet connected successfully!");
   } catch (error) {
     toast.error(`Failed to connect wallet: ${error.message}`);
@@ -82,7 +85,7 @@ const handleAccountsChanged = (accounts) => {
     // No accounts available, user has disconnected
     walletStore.setWalletAddress(null);
     walletStore.setProvider(null);
-    walletStore.setContract(null, null);
+    walletStore.setContract(null);
     toast.info("Wallet disconnected.");
   } else {
     // Account changed, update wallet address

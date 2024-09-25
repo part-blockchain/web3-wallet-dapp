@@ -40,63 +40,63 @@ const loading = ref(false);
 
 const startRound = async () => {
   loading.value = true;
-  try {
-    const gasPrice = await walletStore.provider.eth.getGasPrice();
+  // try {
+  //   const gasPrice = await walletStore.provider.eth.getGasPrice();
 
-    const gas = await walletStore.contract.methods
-      .startRound()
-      .estimateGas({ from: walletStore.walletAddress });
+  //   const gas = await walletStore.contract.methods
+  //     .startRound()
+  //     .estimateGas({ from: walletStore.walletAddress });
 
-    await walletStore.contract.methods
-      .startRound()
-      .send({ from: walletStore.walletAddress, gas, gasPrice });
+  //   await walletStore.contract.methods
+  //     .startRound()
+  //     .send({ from: walletStore.walletAddress, gas, gasPrice });
 
-    toast.success("Round started successfully!");
-  } catch (error) {
-    toast.error(`Failed to start round: ${error.message}`);
-    console.error("Start Round Error:", error);
-  } finally {
-    loading.value = false;
-  }
+  //   toast.success("Round started successfully!");
+  // } catch (error) {
+  //   toast.error(`Failed to start round: ${error.message}`);
+  //   console.error("Start Round Error:", error);
+  // } finally {
+  //   loading.value = false;
+  // }
 };
 
 const endRound = async () => {
   loading.value = true;
-  try {
-    const gasPrice = await walletStore.provider.eth.getGasPrice();
+  // try {
+  //   const gasPrice = await walletStore.provider.eth.getGasPrice();
 
-    const gas = await walletStore.contract.methods
-      .endRound()
-      .estimateGas({ from: walletStore.walletAddress });
-    await walletStore.contract.methods
-      .endRound()
-      .send({ from: walletStore.walletAddress, gas, gasPrice });
-    toast.success("Round ended successfully!");
-  } catch (error) {
-    toast.error(`Failed to end round: ${error.message}`);
-    console.error("End Round Error:", error);
-  } finally {
-    loading.value = false;
-  }
+  //   const gas = await walletStore.contract.methods
+  //     .endRound()
+  //     .estimateGas({ from: walletStore.walletAddress });
+  //   await walletStore.contract.methods
+  //     .endRound()
+  //     .send({ from: walletStore.walletAddress, gas, gasPrice });
+  //   toast.success("Round ended successfully!");
+  // } catch (error) {
+  //   toast.error(`Failed to end round: ${error.message}`);
+  //   console.error("End Round Error:", error);
+  // } finally {
+  //   loading.value = false;
+  // }
 };
 
 const pickWinner = async () => {
   loading.value = true;
-  try {
-    const gasPrice = await walletStore.provider.eth.getGasPrice();
+  // try {
+  //   const gasPrice = await walletStore.provider.eth.getGasPrice();
 
-    const gas = await walletStore.contract.methods
-      .pickWinner()
-      .estimateGas({ from: walletStore.walletAddress });
-    await walletStore.contract.methods
-      .pickWinner()
-      .send({ from: walletStore.walletAddress, gas, gasPrice });
-    toast.success("Winner picked successfully!");
-  } catch (error) {
-    toast.error(`Failed to pick winner: ${error.message}`);
-    console.error("Pick Winner Error:", error);
-  } finally {
-    loading.value = false;
-  }
+  //   const gas = await walletStore.contract.methods
+  //     .pickWinner()
+  //     .estimateGas({ from: walletStore.walletAddress });
+  //   await walletStore.contract.methods
+  //     .pickWinner()
+  //     .send({ from: walletStore.walletAddress, gas, gasPrice });
+  //   toast.success("Winner picked successfully!");
+  // } catch (error) {
+  //   toast.error(`Failed to pick winner: ${error.message}`);
+  //   console.error("Pick Winner Error:", error);
+  // } finally {
+  //   loading.value = false;
+  // }
 };
 </script>

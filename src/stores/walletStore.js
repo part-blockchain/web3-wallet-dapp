@@ -1,13 +1,10 @@
 import { defineStore } from "pinia";
-// const config = require("../../scripts/config.json");
 
 export const useWalletStore = defineStore("wallet", {
   state: () => ({
     provider: null,
-    contractAddress: "0x640ed1af4893cf869cd4bda718c30b76001f4412",
     contract: null,
-    usafeContractAddr: "0x640ed1af4893cf869cd4bda718c30b76001f4412",
-    // usafeContractAddr: config.ethSeries.usafeAddr,
+    usafeContractAddr: null,
     usafeContract:null,
     walletAddress: null,
     isWalletConnected: false,
@@ -30,13 +27,16 @@ export const useWalletStore = defineStore("wallet", {
         console.warn("Invalid wallet address");
       }
     },
-    setContract(contract, usafeContract) {
-      if (contract && typeof contract.methods === "object") {
-        this.contract = contract;
-      } else {
-        console.error("Invalid contract");
-      }
 
+    setUSafeContractAddr(address) {
+      if (address && typeof address === "string") {
+        this.usafeContractAddr = address;
+      } else {
+        this.usafeContractAddr = null;
+        console.warn("Invalid usafe contract address");
+      }
+    },
+    setContract(usafeContract) {
       if (usafeContract && typeof usafeContract.methods === "object") {
         this.usafeContract = usafeContract;
       } else {

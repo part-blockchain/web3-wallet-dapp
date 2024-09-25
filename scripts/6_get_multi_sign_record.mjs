@@ -29,8 +29,6 @@ async function main() {
   const USafe = await hre.ethers.getContractFactory("USafe");
   // 链接合约地址
   const usafe = USafe.attach(config.ethSeries.usafeAddr);
-  // 将第一个二级地址作为测试地址
-  // const recordId = config.ethSeries.recordList[2];
 
   console.log("start to get multi sign record...");
   config.ethSeries.recordList.forEach(async (recordId, index) => {
