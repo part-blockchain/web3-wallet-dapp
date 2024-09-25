@@ -18,7 +18,7 @@
       </div> -->
       <el-table :data="tableData" row-key="id">
         <el-table-column prop="round" label="Round" width="100px" />
-        <el-table-column type="expand">
+        <!-- <el-table-column type="expand">
           <template #default="props">
             <div class="p-[10px]" style="box-sizing: border-box;" v-if="props.row.list?.length">
               详情
@@ -35,7 +35,7 @@
               </el-table>
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column prop="prize" label="Prize Pool" />
         <el-table-column prop="players" label="Players" />
         <el-table-column prop="status" label="Status">
@@ -43,6 +43,11 @@
             <span :class="[row.status == 1 ? 'text-green-500' : 'text-red-500']">
               {{ row.status == 1 ? "RUNNING" : "NOT RUNNING" }}
             </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" width="100px" label="操作">
+          <template #default="{ row }">
+            <el-button type="button" size="small" @click="handleConfirmTransaction(row)">交易确认</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -91,19 +96,34 @@ const fetchContractData = async () => {
     console.log(' players.value', players.value);
     status.value = await walletStore.contract.methods.status().call();
     console.log(' status.value', status.value);
+    // tableData.value = [{
+    //   id: 3,
+    //   round: round.value,
+    //   prize: prizePool.value,
+    //   players: players.value.length,
+    //   status: status.value,
+    //   list: [{
+    //     id: 31,
+    //     round: round.value,
+    //     prize: prizePool.value,
+    //     players: players.value.length,
+    //     status: status.value,
+    //   }]
+    // }];
+
+
     tableData.value = [{
       id: 3,
       round: round.value,
       prize: prizePool.value,
       players: players.value.length,
       status: status.value,
-      list: [{
-        id: 31,
-        round: round.value,
-        prize: prizePool.value,
-        players: players.value.length,
-        status: status.value,
-      }]
+    },{
+      id: 4,
+      round: 4,
+      prize: prizePool.value,
+      players: players.value.length,
+      status: status.value,
     }];
     console.log(' tableData.value', tableData.value);
 
@@ -142,8 +162,11 @@ const buyTicket = async () => {
 };
 
 
-const handleEdit = (row) => {
-  console.log("Edit row:", row);
+const handleConfirmTransaction = (row) => {
+  console.log("row info:", row);
+  console.log("id:", row.id);
+  console.log("round:", row.round);
+  // alert("hello:" + row.id);
 };
 onMounted(() => {
   fetchContractData();
