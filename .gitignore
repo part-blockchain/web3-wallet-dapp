@@ -26,4 +26,9 @@ dist-ssr
 artifacts
 cache
 .env
+.history
 package-lock.json
+.vscode
+
+auto-imports.d.ts
+components.d.ts
