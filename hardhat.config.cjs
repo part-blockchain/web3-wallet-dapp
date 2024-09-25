@@ -22,7 +22,7 @@ module.exports = {
 
       // ganache本地网络
       ganache: {
-        url: `http://192.168.31.234:8545`,
+        url: `http://192.168.120.31:8545`,
         // 私钥方式
         // accounts: [`0x${PRIVATE_KEY1}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`,`0x${PRIVATE_KEY4}`,`0x${PRIVATE_KEY5}`],
         // 助记词方式
@@ -50,10 +50,16 @@ module.exports = {
           mnemonic: config.ethSeries.mnemonic,
         },
       },
+
+      // sepolia网络
+      sepolia: {
+        url: `https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`,
+        accounts: {
+          mnemonic: config.ethSeries.mnemonic,
+        },
+        // accounts: [`0x${SEPOLIA_PRIVATE_KEY}`],
+      },
     },
 
-    sepolia: {
-      url: `https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`,
-      // accounts: [`0x${SEPOLIA_PRIVATE_KEY}`],
-    },
+
 };

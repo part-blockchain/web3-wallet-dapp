@@ -3,7 +3,7 @@
     <AppBar />
     <main class="mx-auto max-w-screen-xl p-4 flex flex-col gap-4">
       <WalletConnect v-if="!isWalletConnected" />
-      <Admin v-if="isWalletConnected && isAdmin" />
+      <!-- <Admin v-if="isWalletConnected && isAdmin" /> -->
       <Home v-if="isWalletConnected" />
       <History v-if="isWalletConnected && history.length > 0" />
     </main>
@@ -16,7 +16,7 @@ import AppBar from "./components/AppBar.vue";
 import Home from "./components/Home.vue";
 import History from "./components/History.vue";
 import WalletConnect from "./components/WalletConnect.vue";
-import Admin from "./components/Admin.vue";
+// import Admin from "./components/Admin.vue";
 import { useWalletStore } from "./stores/walletStore";
 import "vue3-toastify/dist/index.css";
 import { toast } from "vue3-toastify";

@@ -1,7 +1,24 @@
 {
-    "ethSeries": {
-      "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
-      "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB"
-    }
+  "ethSeries": {
+    "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
+    "ledgerAddr": "0xA5164271e8173DC7B63CFdcBbEbCC7027439b05A",
+    "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
+    "tokenAddr": "0x6AF52a362D6CC243ca27E5Fe089D64221D2feF46",
+    "initialize": true,
+    "usafeAddr": "0x60ebfDdd1731b5141096a0E4A56b5D71a373598a",
+    "levelTwoAddrList": [
+      "0xE032161523415b688836DE1D71E8879FE42C7419",
+      "0x388b5981CC09938F2C746B0151961735b9840753",
+      "0x3eD72a4bC99bad84cc01200915a8bD48b6B0c3C8",
+      "0x1e4b13014B0A41494067475b8e823490aAeCe9fA",
+      "0x74F09e384Fd77e4033A3A726621dE9c97c69Ce97"
+    ],
+    "transferInAmount": 100000000,
+    "transferOutAmount": 1000000,
+    "recordList": [
+      "14769421875894345336",
+      "10212318746574678223",
+      "683609536943779341"
+    ]
   }
-  
+}

@@ -56,13 +56,14 @@
           <template #default="{ row }">
             <!-- <el-button type="button" size="small" @click="handleConfirmTransaction(row)">交易确认</el-button> -->
             <div class="mt-4">
-              <button @click="handleConfirmTransaction(row)" :disabled="loading || row.state != 0">
+              <button @click="handleConfirmTransaction(row)" :disabled="loading || row.state != 0"
+                class="relative inline-flex items-center justify-center p-0.5 mb-2 mt-4 overflow-hidden text-sm font-medium text-title rounded-lg group bg-gradient-to-br from-btn to-btn1 group-hover:from-btn group-hover:to-btn1 hover:text-white focus:outline-none">
                 <span
-                  class="relative px-1 py-1 transition-all ease-in duration-55 bg-card rounded-md group-hover:bg-opacity-0 cursor-pointer">
-                  交易确认
+                  class="relative px-1.5 py-1.5 transition-all ease-in duration-75 bg-card rounded-md group-hover:bg-opacity-0 cursor-pointer">
+                  确认交易
                 </span>
               </button>
-              <div v-if="loading" class="text-sm text-gray-500">Processing...</div>
+              <!-- <div v-if="loading" class="text-sm text-gray-500">Processing...</div> -->
             </div>
           </template>
         </el-table-column>
@@ -130,13 +131,13 @@ const fetchContractData = async () => {
       recordId: recordId.value,
       tokenAddr: prizePool.value,
       levelTwoAddr: levelTwoAddr.value.length,
-      state: state.value,
+      state: 0,
     },{
       id: 4,
       recordId: 4,
       tokenAddr: prizePool.value,
       levelTwoAddr: levelTwoAddr.value.length,
-      state: state.value,
+      state: 1,
     }];
     console.log(' tableData.value', tableData.value);
 
@@ -175,14 +176,38 @@ const buyTicket = async () => {
 };
 
 
-const handleConfirmTransaction = (row) => {
+const handleConfirmTransaction = async (row) => {
   console.log("row info:", row);
   console.log("id:", row.id);
   console.log("recordId:", row.recordId);
   if(row.state != 0) {
     alert("交易已完成, 无须确认!");
+    return;
   }
-  // alert("hello:" + row.id);
+  alert("hello:" + row.id);
+  loading.value = true;
+  try {
+    const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
+    const gas = await walletStore.contract.methods.enter().estimateGas({
+      from: walletStore.walletAddress,
+      value: ticketPrice,
+    });
+
+    await walletStore.contract.methods.enter().send({
+      from: walletStore.walletAddress,
+      value: ticketPrice,
+      gas,
+    });
+
+    toast.success("Ticket purchased successfully!");
+    await fetchContractData();
+  } catch (error) {
+    toast.error(`Failed to buy ticket: ${error.message}`);
+    console.error("Buy Ticket Error:", error);
+  } finally {
+    loading.value = false;
+  }
+
 };
 onMounted(() => {
   fetchContractData();
