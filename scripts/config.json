@@ -1,22 +1,33 @@
 {
+  "mysql": {
+    "host": "192.168.3.41",
+    "user": "root",
+    "password": "w3betsDb@123MM",
+    "database": "multi_sign"
+  },
   "ethSeries": {
     "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
     "ledgerAddr": "0xc3899703e578f13802c0F83Fb5Ee114a139910f0",
     "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
-    "tokenAddr": "0x5E2FC8eb9Bae1f0d51f73DEfEa4A94865227933C",
+    "tokenAddr": "0x55233799aE1f0b54d1effA41F26696c579FE1E98",
     "initialize": true,
-    "usafeAddr": "0x72Be24e8CacAE79004372c86Df89B67A0E4E84aC",
+    "usafeAddr": "0x302153E4A2492EeCF8D2e8055579bccdcE19a841",
     "levelTwoAddrList": [
-      "0x928E09b23Eb2119939d002f1a4D3C661DE6F4641",
-      "0x8dE21d5d18e0eB9B23509BE014bD28b6F771015E",
-      "0x99b3590cEC857737BEa06a504BF91279Af3088bf",
-      "0x366bEF759B4279afD1093E81C239994e77826ce5",
-      "0x75DeBa35011EC19156e478aD70e6290f1F8602d5"
+      "0xE477964FE0B6F3a8E1C453fb317758076af7357D",
+      "0xB3991D5E4F8b96900d53cdEa2C58D1F7086c1E79",
+      "0xC7FF891fA01511B07787D5e29f62065098423629",
+      "0x27Cb64Cb674a0F1969E970Ee180Fd465415735CF",
+      "0xAB6bfc69C60Bd6aE7D1b5c504125AbA06901Ce73"
     ],
     "transferInAmount": 100000000,
     "transferOutAmount": 1000000,
     "recordList": [
-      "1068385762684753825"
+      "6607259786068343764",
+      "17048753316798681981",
+      "4226638596106829861",
+      "8759787914208247082",
+      "2126098647268939329",
+      "2092662243976928374"
     ]
   }
 }

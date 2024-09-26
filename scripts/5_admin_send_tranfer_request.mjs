@@ -13,8 +13,10 @@ const hre = require("hardhat");
 const configFile = process.cwd() + "/scripts/config.json";
 console.log("configFile:", configFile);
 const jsonfile = require('jsonfile');
+import {InitMySql, InsertData, CloseDB} from "../src/utils/mysql.js";
 
 async function main() {
+  await InitMySql();
   let config = await jsonfile.readFileSync(configFile);
 
   const [deployer, addr1, addr2] = await ethers.getSigners();
@@ -51,16 +53,29 @@ async function main() {
   const receipt = await tx.wait(); // 等待交易被确认
   // 处理事件
   if (receipt.logs.length > 0) {
+    
     // console.log("Logs:", receipt.logs);
-    receipt.logs.forEach((log, index) => {
+    receipt.logs.forEach(async (log, index) => {
         // console.log(`Log ${index + 1}: ${log}`);
           // 判断事件名称
         const logInfo = usafe.interface.parseLog(log);
         console.log("logInfo.args:", logInfo.args[0]);
+        let recordId = ""
         if (logInfo.name === "TransferRequestEvent") {
-            config.ethSeries.recordList.push(logInfo.args[0].toString());
+            if(recordId !== logInfo.args[0].toString()) {
+              recordId = logInfo.args[0].toString();
+              config.ethSeries.recordList.push(recordId);
+              // 写入数据库
+              const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+              const values = [recordId, deployer.address, config.ethSeries.tokenAddr, testLevelTwoAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount * 2, 0];
+              const info = await InsertData(insertSql, values);
+              console.log('insert multi sign record successfully, results:', info);
+            }
         }
     });
+
+    // 关闭数据库
+    CloseDB();
     // 更新config.json文件
     jsonfile.writeFileSync(configFile, config, {spaces: 2});
   } else {

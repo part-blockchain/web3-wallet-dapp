@@ -13,6 +13,7 @@ const hre = require("hardhat");
 const configFile = process.cwd() + "/scripts/config.json";
 console.log("configFile:", configFile);
 const jsonfile = require('jsonfile');
+import {InitMySql, InsertData, CloseDB} from "../src/utils/mysql.js"
 
 async function main() {
   let config = await jsonfile.readFileSync(configFile);
@@ -43,6 +44,14 @@ async function main() {
     // 将ledger地址作为多签地址
     await usafe.SetMultiSignAddr(testLevelTwoAddr, config.ethSeries.ledgerAddr);
     multiSignAddr = await transferToken.GetMultiSignAddr();
+    // 初始化数据库
+    await InitMySql();
+    // 插入数据到表中(t_transfer_token_info)
+    const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
+    const values = [testLevelTwoAddr, multiSignAddr];
+    const info = await InsertData(insertSql, values);
+    console.log('insert transfer token info successfully, results:', info);
+    CloseDB();
   }
 
   console.log("TransferToken addr:", testLevelTwoAddr, ", multiSignAddr:", multiSignAddr)

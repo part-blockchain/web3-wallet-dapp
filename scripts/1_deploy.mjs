@@ -11,7 +11,10 @@ const configFile = process.cwd() + "/scripts/config.json";
 console.log("configFile:", configFile);
 const jsonfile = require('jsonfile');
 
+import {InitMySql, UpdateData, CloseDB} from "../src/utils/mysql.js"
+
 async function main() {
+  await InitMySql();
   let config = await jsonfile.readFileSync(configFile);
 
   const [deployer, addr1, addr2] = await ethers.getSigners();
@@ -44,6 +47,20 @@ async function main() {
   config.ethSeries.tokenAddr = token.target;
   config.ethSeries.usafeAddr = usafe.target;
   jsonfile.writeFileSync(configFile, config, {spaces: 2});
+
+  // 写入数据库
+  // 更新token地址
+  const updateSql = `UPDATE t_config SET field_value = ? WHERE field_key = ?`;
+  let values = [token.target, 'TokenAddr'];
+  let info = await UpdateData(updateSql, values);
+  console.log('update erc20 token address successfully, results:', info);
+
+  // 更新USafe地址
+  values = [usafe.target, 'USafeAddr'];
+  info = await UpdateData(updateSql, values);
+  console.log('update usafe address successfully, results:', info);
+  // 关闭数据库
+  CloseDB();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -101,6 +101,7 @@ const levelTwoAddr = ref([]);
 const loading = ref(false);
 const tableData = ref([]);
 
+// 从合约中获取待确认交易数据
 const fetchContractData = async () => {
   await configStore.loadConfig();
   loading.value = true;
@@ -149,6 +150,54 @@ const fetchContractData = async () => {
       //   state: state.value,
     //   }]
     // }];
+
+    console.log(' tableData.value', tableData.value);
+
+
+  } catch (error) {
+    toast.error(`Failed to fetch contract data: ${error.message}`);
+    console.error("Fetch Contract Data Error:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 从api中获取待确认交易数据
+const fetchDataFromAPI = async () => {
+  await configStore.loadConfig();
+  loading.value = true;
+  try {    
+    tableData.value = [];
+    // 获取和多签地址为连接钱包的多签记录
+    configStore.config.ethSeries.recordList.forEach(async (recordId, index) => {
+      // alert("recordId:" + recordId);
+      // console.log("walletStore.usafeContract===:" ,walletStore.usafeContract);
+      console.log("recordId:" , recordId);
+      const multiSignRes = await walletStore.usafeContract.methods.getMultiSignRecord(recordId).call();
+      // console.log("tokenAddr:" , multiSignRes.tokenAddr);
+      // console.log("levelTwoAddr:" , multiSignRes.levelTwoAddr);
+      // console.log("receiver:" , multiSignRes.receiver);
+      // console.log("amount:" , multiSignRes.amount);
+      // console.log("state:" , multiSignRes.state);
+
+      // 过滤多签地址为连接的钱包地址
+      // alert("walletStore.walletAddress:" + walletStore.walletAddress);
+      const transferToken = walletStore.newContractObj(transferTokenAbi, multiSignRes.levelTwoAddr);
+      const multiSignAddr = await transferToken.methods.GetMultiSignAddr().call();
+      // alert("multiSignAddr:" + multiSignAddr);
+      if(multiSignAddr.toLowerCase() === walletStore.walletAddress.toLowerCase() && !multiSignRes.state) {
+        const item = {
+          recordId: recordId,
+          tokenAddr: multiSignRes.tokenAddr,
+          levelTwoAddr: multiSignRes.levelTwoAddr,
+          receiver: multiSignRes.receiver,
+          amount: multiSignRes.amount,
+          state: multiSignRes.state,
+        }
+        tableData.value.push(item);
+      }
+  });
+
 
     console.log(' tableData.value', tableData.value);
 
