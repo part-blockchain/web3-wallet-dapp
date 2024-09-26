@@ -17,6 +17,22 @@ export const useWalletStore = defineStore("wallet", {
         console.error("Invalid provider");
       }
     },
+    // 创建合约对象(如：TransferToken)
+    newContractObj(abi, contractAddr) {
+      if (contractAddr && typeof contractAddr === "string") {
+        // donothing
+      } else {
+        console.warn("Invalid contract address");
+        return null
+      }
+
+      if(null === this.provider) {
+        console.warn("Invalid provider");
+        return null
+      }
+      return new this.provider.eth.Contract(abi, contractAddr);
+    },
+
     setWalletAddress(address) {
       if (address && typeof address === "string") {
         this.walletAddress = address;
