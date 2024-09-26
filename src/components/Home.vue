@@ -79,16 +79,19 @@
         <div v-if="loading" class="text-sm text-gray-500">Processing...</div>
       </div> -->
     </div>
-
+    
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
 import { useConfigStore } from "../stores/configStore";
 import { transferTokenAbi } from "../utils/transferTokenAbi";
+
+// 定时任务
+let interval;
 
 const walletStore = useWalletStore();
 const configStore = useConfigStore();
@@ -106,6 +109,8 @@ const fetchContractData = async () => {
     // 获取和多签地址为连接钱包的多签记录
     configStore.config.ethSeries.recordList.forEach(async (recordId, index) => {
       // alert("recordId:" + recordId);
+      // console.log("walletStore.usafeContract===:" ,walletStore.usafeContract);
+      console.log("recordId:" , recordId);
       const multiSignRes = await walletStore.usafeContract.methods.getMultiSignRecord(recordId).call();
       // console.log("tokenAddr:" , multiSignRes.tokenAddr);
       // console.log("levelTwoAddr:" , multiSignRes.levelTwoAddr);
@@ -118,7 +123,7 @@ const fetchContractData = async () => {
       const transferToken = walletStore.newContractObj(transferTokenAbi, multiSignRes.levelTwoAddr);
       const multiSignAddr = await transferToken.methods.GetMultiSignAddr().call();
       // alert("multiSignAddr:" + multiSignAddr);
-      if(multiSignAddr.toLowerCase() === walletStore.walletAddress.toLowerCase()) {
+      if(multiSignAddr.toLowerCase() === walletStore.walletAddress.toLowerCase() && !multiSignRes.state) {
         const item = {
           recordId: recordId,
           tokenAddr: multiSignRes.tokenAddr,
@@ -156,69 +161,58 @@ const fetchContractData = async () => {
   }
 };
 
-const buyTicket = async () => {
-  // loading.value = true;
-  // try {
-  //   const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
-  //   const gas = await walletStore.contract.methods.enter().estimateGas({
-  //     from: walletStore.walletAddress,
-  //     value: ticketPrice,
-  //   });
-
-  //   await walletStore.contract.methods.enter().send({
-  //     from: walletStore.walletAddress,
-  //     value: ticketPrice,
-  //     gas,
-  //   });
-
-  //   toast.success("Ticket purchased successfully!");
-  //   await fetchContractData();
-  // } catch (error) {
-  //   toast.error(`Failed to buy ticket: ${error.message}`);
-  //   console.error("Buy Ticket Error:", error);
-  // } finally {
-  //   loading.value = false;
-  // }
-};
-
-
+// 确认交易操作
 const handleConfirmTransaction = async (row) => {
-  console.log("row info:", row);
-  console.log("id:", row.id);
+  // console.log("row info:", row);
+  loading.value = true;
   console.log("recordId:", row.recordId);
   if(row.state != 0) {
     alert("交易已完成, 无须确认!");
     return;
   }
-  // alert("hello:" + row.id);
-  
-  loading.value = true;
-  // try {
-  //   const ticketPrice = walletStore.provider.utils.toWei("0.005", "ether");
-  //   const gas = await walletStore.contract.methods.enter().estimateGas({
-  //     from: walletStore.walletAddress,
-  //     value: ticketPrice,
-  //   });
 
-  //   await walletStore.contract.methods.enter().send({
-  //     from: walletStore.walletAddress,
-  //     value: ticketPrice,
-  //     gas,
-  //   });
+  try {
+    // 预估gas
+    const gas = await walletStore.usafeContract.methods.ConfirmTransaction(row.recordId).estimateGas({
+      from: walletStore.walletAddress,
+    });
 
-  //   toast.success("Ticket purchased successfully!");
-  //   await fetchContractData();
-  // } catch (error) {
-  //   toast.error(`Failed to buy ticket: ${error.message}`);
-  //   console.error("Buy Ticket Error:", error);
-  // } finally {
-  //   loading.value = false;
-  // }
+    // 发送交易
+    await walletStore.usafeContract.methods.ConfirmTransaction(row.recordId).send({
+      from: walletStore.walletAddress,
+      gas,
+    });
 
+    toast.success("Confirm Transaction successfully!");
+    // 刷新
+    await fetchContractData();
+  } catch (error) {
+    toast.error(`Failed to Confirm Transaction: ${error.message}`);
+    console.error("ConfirmTransaction Error:", error);
+  } finally {
+    loading.value = false;
+  }
 };
+
+// 控件挂载事件
+// onMounted(() => {
+//   fetchContractData();
+// });
+
 onMounted(() => {
   fetchContractData();
+  // 定时任务
+  interval = setInterval(() => {
+    fetchContractData();
+  }, 5000);
 });
+
+onBeforeUnmount(() => {
+  // 清除定时器
+  clearInterval(interval);
+});
+
+
 </script>
 <style>
 .el-table {

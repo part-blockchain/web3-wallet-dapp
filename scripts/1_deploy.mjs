@@ -40,6 +40,7 @@ async function main() {
   console.log(`Depoly USafe contract successful, address: ${usafe.target}`);
 
   // 更新config.json文件
+  config.ethSeries.initialize = false;
   config.ethSeries.tokenAddr = token.target;
   config.ethSeries.usafeAddr = usafe.target;
   jsonfile.writeFileSync(configFile, config, {spaces: 2});

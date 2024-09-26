@@ -63,9 +63,11 @@ const connectWallet = async () => {
     // 加载配置文件
     await configStore.loadConfig();
     const accounts = await walletStore.provider.eth.requestAccounts();
+    // console.log("setWalletAddress, accounts[0]======:", accounts[0]);
     walletStore.setWalletAddress(accounts[0]);
 
     // 设置usafe合约地址
+    // console.log("setUSafeContractAddr, usafeAddr======:", configStore.config.ethSeries.usafeAddr);
     walletStore.setUSafeContractAddr(configStore.config.ethSeries.usafeAddr);
     // console.log("usafeAbi======:", usafeAbi);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);

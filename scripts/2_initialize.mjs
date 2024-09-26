@@ -28,6 +28,7 @@ async function main() {
     // 初始化一次
     await usafe.initialize();
     config.ethSeries.initialize = true;
+    config.ethSeries.recordList = [];
   }
 
   // 查询二级地址
