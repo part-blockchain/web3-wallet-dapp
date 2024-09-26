@@ -1,0 +1,1 @@
+export const multiSignApiUrl = "http://192.168.120.31:10000/public/get_multi_sign_record?address=";

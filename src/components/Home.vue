@@ -89,6 +89,7 @@ import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
 import { useConfigStore } from "../stores/configStore";
 import { transferTokenAbi } from "../utils/transferTokenAbi";
+import { multiSignApiUrl } from "../utils/httpApi";
 
 // 定时任务
 let interval;
@@ -169,42 +170,35 @@ const fetchDataFromAPI = async () => {
   try {    
     tableData.value = [];
     // 获取和多签地址为连接钱包的多签记录
-    configStore.config.ethSeries.recordList.forEach(async (recordId, index) => {
-      // alert("recordId:" + recordId);
-      // console.log("walletStore.usafeContract===:" ,walletStore.usafeContract);
-      console.log("recordId:" , recordId);
-      const multiSignRes = await walletStore.usafeContract.methods.getMultiSignRecord(recordId).call();
-      // console.log("tokenAddr:" , multiSignRes.tokenAddr);
-      // console.log("levelTwoAddr:" , multiSignRes.levelTwoAddr);
-      // console.log("receiver:" , multiSignRes.receiver);
-      // console.log("amount:" , multiSignRes.amount);
-      // console.log("state:" , multiSignRes.state);
-
-      // 过滤多签地址为连接的钱包地址
-      // alert("walletStore.walletAddress:" + walletStore.walletAddress);
-      const transferToken = walletStore.newContractObj(transferTokenAbi, multiSignRes.levelTwoAddr);
-      const multiSignAddr = await transferToken.methods.GetMultiSignAddr().call();
-      // alert("multiSignAddr:" + multiSignAddr);
-      if(multiSignAddr.toLowerCase() === walletStore.walletAddress.toLowerCase() && !multiSignRes.state) {
-        const item = {
-          recordId: recordId,
-          tokenAddr: multiSignRes.tokenAddr,
-          levelTwoAddr: multiSignRes.levelTwoAddr,
-          receiver: multiSignRes.receiver,
-          amount: multiSignRes.amount,
-          state: multiSignRes.state,
-        }
-        tableData.value.push(item);
+    const url = multiSignApiUrl + walletStore.walletAddress;
+    // const response = await fetch(url, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ key: 'value' }),
+    // });
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    // console.log('Data posted:', data.result);
+    // console.log(' tableData.value', tableData.value);
+    data.result.forEach(async (record, index) => {
+      const item = {
+        recordId: record.RecordId,
+        tokenAddr: record.TokenAddr,
+        levelTwoAddr: record.TransferTokenAddr,
+        receiver: record.Receiver,
+        amount: record.Amount,
+        state: record.State,
       }
-  });
-
-
-    console.log(' tableData.value', tableData.value);
-
-
+      tableData.value.push(item);
+    });
   } catch (error) {
-    toast.error(`Failed to fetch contract data: ${error.message}`);
-    console.error("Fetch Contract Data Error:", error);
+    toast.error(`Failed to fetch data from api service: ${error.message}`);
+    console.error("Fetch Data Error:", error);
   } finally {
     loading.value = false;
   }
@@ -243,16 +237,20 @@ const handleConfirmTransaction = async (row) => {
   }
 };
 
-// 控件挂载事件
+// // 控件挂载事件
 // onMounted(() => {
-//   fetchContractData();
+//   // fetchContractData();
+//   fetchDataFromAPI();
 // });
 
 onMounted(() => {
-  fetchContractData();
+  // 立即刷新
+  // fetchContractData();
+  fetchDataFromAPI();
   // 定时任务
   interval = setInterval(() => {
-    fetchContractData();
+    // fetchContractData();
+    fetchDataFromAPI();
   }, 5000);
 });
 
