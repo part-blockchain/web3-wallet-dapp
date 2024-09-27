@@ -27,7 +27,8 @@ async function main() {
   }
 
   // 将第一个二级地址作为测试地址
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[0];
+  const index = config.ethSeries.testLevelTwoIndex;
+  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
 
   // 查询token余额
   const ERC20Token = await hre.ethers.getContractFactory("ERC20Token");

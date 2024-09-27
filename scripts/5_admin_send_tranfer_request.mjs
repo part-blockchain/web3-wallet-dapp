@@ -29,7 +29,8 @@ async function main() {
   }
 
   // 将第一个二级地址作为测试地址
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[0];
+  const index = config.ethSeries.testLevelTwoIndex;
+  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
 
   // // 查询token余额
   // const ERC20Token = await hre.ethers.getContractFactory("ERC20Token");
@@ -64,6 +65,7 @@ async function main() {
         if (logInfo.name === "TransferRequestEvent") {
             if(recordId !== logInfo.args[0].toString()) {
               recordId = logInfo.args[0].toString();
+              console.log("recordId:", recordId);
               config.ethSeries.recordList.push(recordId);
               // 写入数据库
               const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;

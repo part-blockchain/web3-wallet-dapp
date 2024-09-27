@@ -52,7 +52,7 @@ export const useWalletStore = defineStore("wallet", {
         console.warn("Invalid usafe contract address");
       }
     },
-    setContract(usafeContract) {
+    setUSafeContract(usafeContract) {
       if (usafeContract && typeof usafeContract.methods === "object") {
         this.usafeContract = usafeContract;
       } else {

@@ -179,7 +179,7 @@ contract USafe {
     ///      此请求目的：将本合约地址的Token数量转到目标地址。
     /// @param _recordId 多签记录Id
     function ConfirmTransaction(uint64 _recordId) external {
-        MultiSign memory record = mapMultiSignRecord[_recordId];
+        MultiSign storage record = mapMultiSignRecord[_recordId];
         require(record.tokenAddr != address(0), "");
         require(record.levelTwoAddr != address(0), "");
         require(record.receiver != address(0), "");
@@ -187,6 +187,8 @@ contract USafe {
         // 初始化合约对象
         TransferToken obj = TransferToken(record.levelTwoAddr);
         obj.ConfirmTransaction(record.tokenAddr, record.receiver, record.amount);
+        // 修改状态
+        record.state = 1;
         emit ConfirmTransactionEvent(_recordId, msg.sender);
     }
 

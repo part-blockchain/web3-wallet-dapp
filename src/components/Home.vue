@@ -89,14 +89,14 @@ import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
 import { useConfigStore } from "../stores/configStore";
 import { transferTokenAbi } from "../utils/transferTokenAbi";
-import { multiSignApiUrl } from "../utils/httpApi";
+import { multiSignApiUrl, publicApi, getRecordFunc, updateRecordStateFunc } from "../utils/config";
 
 // 定时任务
 let interval;
 
 const walletStore = useWalletStore();
 const configStore = useConfigStore();
-const recordId = ref(0);
+let updateRecordId = "";
 const state = ref("");
 const levelTwoAddr = ref([]);
 const loading = ref(false);
@@ -165,27 +165,24 @@ const fetchContractData = async () => {
 
 // 从api中获取待确认交易数据
 const fetchDataFromAPI = async () => {
-  await configStore.loadConfig();
+  // toast.info(`isUpdateState: ${isUpdateState}, recordId:${recordId}`)
   loading.value = true;
   try {    
     tableData.value = [];
     // 获取和多签地址为连接钱包的多签记录
-    const url = multiSignApiUrl + walletStore.walletAddress;
-    // const response = await fetch(url, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ key: 'value' }),
-    // });
+    let url = multiSignApiUrl + publicApi + getRecordFunc + walletStore.walletAddress;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
+    if(null === data.result || 0 === data.result.length) {
+      return;
+    }
     // console.log('Data posted:', data.result);
-    // console.log(' tableData.value', tableData.value);
+    // toast.info(`data.result: ${data.result}`)
     data.result.forEach(async (record, index) => {
+      // toast.info(`recordid: ${record.RecordId}`)
       const item = {
         recordId: record.RecordId,
         tokenAddr: record.TokenAddr,
@@ -207,8 +204,8 @@ const fetchDataFromAPI = async () => {
 // 确认交易操作
 const handleConfirmTransaction = async (row) => {
   // console.log("row info:", row);
+  // toast.info("row info:" + row.recordId);
   loading.value = true;
-  console.log("recordId:", row.recordId);
   if(row.state != 0) {
     alert("交易已完成, 无须确认!");
     return;
@@ -219,19 +216,18 @@ const handleConfirmTransaction = async (row) => {
     const gas = await walletStore.usafeContract.methods.ConfirmTransaction(row.recordId).estimateGas({
       from: walletStore.walletAddress,
     });
-
     // 发送交易
     await walletStore.usafeContract.methods.ConfirmTransaction(row.recordId).send({
       from: walletStore.walletAddress,
       gas,
     });
-
-    toast.success("Confirm Transaction successfully!");
+    toast.success(`Confirm Transaction successfully`);
     // 刷新
-    await fetchContractData();
+    // await fetchDataFromAPI();
   } catch (error) {
     toast.error(`Failed to Confirm Transaction: ${error.message}`);
     console.error("ConfirmTransaction Error:", error);
+    updateRecordId = "";
   } finally {
     loading.value = false;
   }

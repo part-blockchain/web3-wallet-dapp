@@ -71,8 +71,8 @@ const connectWallet = async () => {
     walletStore.setUSafeContractAddr(configStore.config.ethSeries.usafeAddr);
     // console.log("usafeAbi======:", usafeAbi);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
-    
-    walletStore.setContract(usafeContract);
+    walletStore.setUSafeContract(usafeContract);
+
     toast.success("Wallet connected successfully!");
   } catch (error) {
     toast.error(`Failed to connect wallet: ${error.message}`);
@@ -87,7 +87,7 @@ const handleAccountsChanged = (accounts) => {
     // No accounts available, user has disconnected
     walletStore.setWalletAddress(null);
     walletStore.setProvider(null);
-    walletStore.setContract(null);
+    walletStore.setUSafeContract(null);
     toast.info("Wallet disconnected.");
   } else {
     // Account changed, update wallet address

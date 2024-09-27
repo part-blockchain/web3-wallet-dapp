@@ -28,13 +28,14 @@ async function main() {
   }
 
   // 将第一个二级地址作为测试地址
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[0];
+  const index = config.ethSeries.testLevelTwoIndex;
+  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
   // 查询多签地址
   const TransferToken = await hre.ethers.getContractFactory("TransferToken");
   const transferToken = TransferToken.attach(testLevelTwoAddr);
 
   let multiSignAddr = await transferToken.GetMultiSignAddr();
-  
+  // 转账合约未设置多签地址
   if(multiSignAddr == "0x0000000000000000000000000000000000000000") {
     // 初始化USafe合约
     const USafe = await hre.ethers.getContractFactory("USafe");

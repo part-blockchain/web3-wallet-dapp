@@ -53,6 +53,7 @@ export async function InsertData(insertSql, values) {
             }
             resolve(results); // 查询成功时解析 Promise
         });
+        connection.commit();
     })
 }
 
@@ -67,6 +68,7 @@ export async function UpdateData(updateSql, values) {
             }
             resolve(results); // 查询成功时解析 Promise
         });
+        connection.commit();
     })
 }
 
