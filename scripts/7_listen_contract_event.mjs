@@ -8,6 +8,7 @@
 /*
 注意：
 1.部署USafe后，需要重启此监听服务；
+2."web3": "^1.7.3"的事件订阅方式和4.*的方式不同；
 
 */ 
 import { createRequire } from "module";
@@ -57,8 +58,14 @@ async function listenSetMultiSignAddrEvent(usafeContract) {
         // update
         const updateSql = `UPDATE t_transfer_token_info SET multi_sign_addr = ? WHERE contract_addr = ?`;
         values = [result._multiSignAddr, result._levelTwoAddr];
-        let info = await UpdateData(updateSql, values);
-        console.log('update t_transfer_token_info successfully, results:', info);
+        data = await UpdateData(updateSql, values);
+        console.log('update t_transfer_token_info successfully, results:', data);
+      } else {
+        // 插入数据到表中(t_transfer_token_info)
+        const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
+        values = [result._levelTwoAddr, result._multiSignAddr];
+        data = await InsertData(insertSql, values);
+        console.log('insert transfer token info successfully, results:', data);
       }
   });
 
@@ -105,10 +112,10 @@ async function listenTransferRequestEvent(usafeContract) {
     if(0 == records.length) {
       // 插入多签记录到数据库表中
       // 写入数据库
-      // const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-      // values = [result._recordId, result._caller, result._tokenAddr, result._levelTwoAddr, result._to, result._amount, 0];
-      // const data = await InsertData(insertSql, values);
-      // console.log('insert multi sign record successfully, data:', data);
+      const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      values = [result._recordId, result._caller, result._tokenAddr, result._levelTwoAddr, result._to, result._amount, 0];
+      const data = await InsertData(insertSql, values);
+      console.log('insert multi sign record successfully, data:', data);
     }
   })
 

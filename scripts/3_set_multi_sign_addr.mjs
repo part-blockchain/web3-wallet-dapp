@@ -45,14 +45,16 @@ async function main() {
     // 将ledger地址作为多签地址
     await usafe.SetMultiSignAddr(testLevelTwoAddr, config.ethSeries.ledgerAddr);
     multiSignAddr = await transferToken.GetMultiSignAddr();
-    // 初始化数据库
-    await InitMySql();
-    // 插入数据到表中(t_transfer_token_info)
-    const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
-    const values = [testLevelTwoAddr, multiSignAddr];
-    const info = await InsertData(insertSql, values);
-    console.log('insert transfer token info successfully, results:', info);
-    CloseDB();
+
+    // 在订阅事件服务中处理
+    // // 初始化数据库
+    // await InitMySql();
+    // // 插入数据到表中(t_transfer_token_info)
+    // const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
+    // const values = [testLevelTwoAddr, multiSignAddr];
+    // const info = await InsertData(insertSql, values);
+    // console.log('insert transfer token info successfully, results:', info);
+    // CloseDB();
   }
 
   console.log("TransferToken addr:", testLevelTwoAddr, ", multiSignAddr:", multiSignAddr)

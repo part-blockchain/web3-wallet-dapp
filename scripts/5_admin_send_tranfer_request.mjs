@@ -67,11 +67,12 @@ async function main() {
               recordId = logInfo.args[0].toString();
               console.log("recordId:", recordId);
               config.ethSeries.recordList.push(recordId);
-              // 写入数据库
-              const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-              const values = [recordId, deployer.address, config.ethSeries.tokenAddr, testLevelTwoAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount * 2, 0];
-              const info = await InsertData(insertSql, values);
-              console.log('insert multi sign record successfully, results:', info);
+              // 在订阅服务中处理
+              // // 写入数据库
+              // const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+              // const values = [recordId, deployer.address, config.ethSeries.tokenAddr, testLevelTwoAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount * 2, 0];
+              // const info = await InsertData(insertSql, values);
+              // console.log('insert multi sign record successfully, results:', info);
             }
         }
     });
