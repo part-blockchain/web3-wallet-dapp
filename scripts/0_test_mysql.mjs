@@ -4,20 +4,21 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
-import {InitMySql, QueryData, InsertData, CloseDB} from "../src/utils/mysql.js"
+import {InitMySql, QueryDataByValues, InsertData, CloseDB} from "../src/utils/mysql.js"
 
 async function main() {
   await InitMySql();
   // 查询
-  const selectSql = `select * from t_tg_account`;
-  let results = await QueryData(selectSql);
-  console.log('select data successfully, results:', results);
-
+  const selectSql = `select * from t_transfer_token_info where contract_addr = ?`;
+  const levelTwoAddr = "0x41C9183756af69c239E5c9B05529AeC9AC794903";
+  let values = [levelTwoAddr];
+  let data = await QueryDataByValues(selectSql, values);
+  console.log('select data from t_transfer_token_info successfully, data:', data);
   // 插入数据到表中
-  const insertSql = `INSERT INTO t_tg_account (account, chatId) VALUES (?, ?)`;
-  const values = ['hahhahh', 88888];
-  const info = await InsertData(insertSql, values);
-  console.log('insert data successfully, results:', info);
+  // const insertSql = `INSERT INTO t_tg_account (account, chatId) VALUES (?, ?)`;
+  // values = ['hahhahh', 88888];
+  // const info = await InsertData(insertSql, values);
+  // console.log('insert data successfully, results:', info);
 
   // 关闭数据库
   CloseDB();

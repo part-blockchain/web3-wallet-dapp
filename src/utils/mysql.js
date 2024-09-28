@@ -42,6 +42,20 @@ export async function QueryData(selectSql) {
     })
 }
 
+// 查询数据
+export async function QueryDataByValues(selectSql, values) {
+    return new Promise((resolve, reject) => {
+        // 查询
+        connection.query(selectSql, values, (error, results) => {
+            if (error) {
+                console.error('Error select data:', error.stack);
+                return reject(error); // 查询出错时拒绝 Promise
+            }
+            resolve(results); // 查询成功时解析 Promise
+        });
+    })
+}
+
 // 插入数据
 export async function InsertData(insertSql, values) {
     return new Promise((resolve, reject) => {

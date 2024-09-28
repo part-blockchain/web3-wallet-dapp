@@ -6,6 +6,7 @@ export const useWalletStore = defineStore("wallet", {
     contract: null,
     usafeContractAddr: null,
     usafeContract:null,
+    wsUSafeContract:null,
     walletAddress: null,
     isWalletConnected: false,
   }),
@@ -57,6 +58,15 @@ export const useWalletStore = defineStore("wallet", {
         this.usafeContract = usafeContract;
       } else {
         console.error("Invalid usafe contract");
+      }
+    },
+
+    // 设置websocket合约对象
+    setWSUSafeContract(wsUSafeContract) {
+      if (wsUSafeContract && typeof wsUSafeContract.methods === "object") {
+        this.wsUSafeContract = wsUSafeContract;
+      } else {
+        console.error("Invalid websocket usafe contract");
       }
     },
   },

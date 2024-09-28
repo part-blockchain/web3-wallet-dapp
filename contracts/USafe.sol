@@ -47,6 +47,7 @@ contract USafe {
     /// @param _recordId 记录Id
     /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的admin相同
     /// @param _levelTwoAddr 付款地址，即转账合约地址
+    /// @param _tokenAddr token合约地址
     /// @param _to 收款地址
     /// @param _amount 转账金额
     event TransferRequestEvent(uint64 indexed _recordId, address indexed _caller, address indexed _levelTwoAddr, address _tokenAddr, address _to, uint256 _amount);
@@ -137,13 +138,23 @@ contract USafe {
         admin = newAdmin;
     }
 
-    /// @notice 初次设置转账合约的多签地址
+    /// @notice 设置转账合约的多签地址
     /// @param _levelTwoAddr 二级地址，转账token的合约地址
     /// @param _multiSignAddr 多签地址
     function SetMultiSignAddr(address _levelTwoAddr, address _multiSignAddr) external {
-        require(msg.sender == admin, "caller is not contract admin");
+        require(_multiSignAddr != address(0), "The multisignature address cannot be set to the 0 address");
         // 初始化合约对象
         TransferToken obj = TransferToken(_levelTwoAddr);
+        address multiSignAddr = obj.GetMultiSignAddr();
+        require(multiSignAddr != _multiSignAddr, "The set multi-signature address is the same as the old address, so there is no need to set it.");
+        if(multiSignAddr == address(0)) {
+            // 未设置多签地址
+            require(msg.sender == admin, "caller is not contract admin");
+        } else {
+            // 已设置多签地址
+            require(msg.sender == multiSignAddr, "caller is not original multisigner address");
+        }
+        
         obj.SetMultiSignAddr(_multiSignAddr);
         emit SetMultiSignAddrEvent(msg.sender, _levelTwoAddr, _multiSignAddr);
     }

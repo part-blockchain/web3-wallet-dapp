@@ -56,15 +56,9 @@ contract TransferToken {
         emit TransferERC20Token(msg.sender, address(this), _to, _amount);
     }
 
-    // 修改地址(首次由usafe合约地址设置)
+    // 修改地址(由usafe合约地址设置, 为了更好的监控事件)
     function SetMultiSignAddr(address _multiSignAddr) external {
-        if(multiSignAddr == address(0)) {
-            // 首次设置
-            require(msg.sender == usafeAddr, "caller is not contract usafeAddr");
-        } else {
-            require(msg.sender == multiSignAddr, "The caller is not the original multisigner address");
-        }
-        
+        require(msg.sender == usafeAddr, "caller is not contract usafeAddr");
         multiSignAddr = _multiSignAddr;
         emit SetMultiSignAddrEvent(msg.sender, address(this), _multiSignAddr);
     }

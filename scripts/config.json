@@ -6,24 +6,27 @@
     "database": "multi_sign"
   },
   "ethSeries": {
+    "wsUrl": "ws://192.168.120.31:8545",
     "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
     "ledgerAddr": "0xc3899703e578f13802c0F83Fb5Ee114a139910f0",
     "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
-    "tokenAddr": "0x1D22bf5c75F38B97b7875F991E3e3ca6038ef720",
+    "tokenAddr": "0x2FBb2c4e4799BAad7E7a8905cc30B3c8995dC4f5",
     "initialize": true,
-    "usafeAddr": "0x493bdE003bc4D4De9a29241A5486031F2Dc055D3",
+    "usafeAddr": "0x1418c29157EecbaA1470f5e981b71B26496FdE6E",
     "levelTwoAddrList": [
-      "0x7F831FE3AFEfe15A757f9adf49EA717CaE6eD0B1",
-      "0x44F8750Ce42908B7adABcd3E5EEf8F3929d948e5",
-      "0xE880374b2569827e3078DBE776445379D1574761",
-      "0x8B185d033A1701f9a92BfAEc03cBb8f9ce1E7446",
-      "0x2853475298065aBE325EdbEE150A108900A4E081"
+      "0xDe9a4C1A14906ff1F5ECa285166Be0d5b3DED513",
+      "0xc21616b60a1a7d123D9569bb8B2aac2826c0Ab17",
+      "0x41C9183756af69c239E5c9B05529AeC9AC794903",
+      "0xCa4dfAA09676437D34C1C2CF4848e696DCf1b653",
+      "0x0bCF6025a67c571159e182b05b7F26cD0aBF4FDa"
     ],
     "testLevelTwoIndex": 2,
     "transferInAmount": 100000000,
     "transferOutAmount": 1000000,
     "recordList": [
-      "7587493654770572606"
+      "7518137349076868554",
+      "7206994723876120456",
+      "7823106981440620185"
     ]
   }
 }

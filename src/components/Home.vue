@@ -223,7 +223,7 @@ const handleConfirmTransaction = async (row) => {
     });
     toast.success(`Confirm Transaction successfully`);
     // 刷新
-    // await fetchDataFromAPI();
+    await fetchDataFromAPI();
   } catch (error) {
     toast.error(`Failed to Confirm Transaction: ${error.message}`);
     console.error("ConfirmTransaction Error:", error);

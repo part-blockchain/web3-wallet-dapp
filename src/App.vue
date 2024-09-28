@@ -5,7 +5,7 @@
       <WalletConnect v-if="!isWalletConnected" />
       <!-- <Admin v-if="isWalletConnected && isAdmin" /> -->
       <Home v-if="isWalletConnected" />
-      <History v-if="isWalletConnected && history.length > 0" />
+      <!-- <History v-if="isWalletConnected && history.length > 0" /> -->
     </main>
   </div>
 </template>

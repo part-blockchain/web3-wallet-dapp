@@ -41,6 +41,7 @@ const isMetaMaskInstalled = ref(false);
 const loading = ref(false);
 const isWalletConnected = computed(() => walletStore.isWalletConnected);
 
+let wsUSafeContract;
 // Check if MetaMask is installed
 const checkMetaMaskInstallation = () => {
   isMetaMaskInstalled.value = window.ethereum && window.ethereum.isMetaMask;
@@ -72,6 +73,11 @@ const connectWallet = async () => {
     // console.log("usafeAbi======:", usafeAbi);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
     walletStore.setUSafeContract(usafeContract);
+    // 设置websocket合约对象
+    // const wsUrl = configStore.config.ethSeries.wsUrl;
+    // const wsProvider = new Web3(wsUrl);
+    // wsUSafeContract = new wsProvider.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
+    // walletStore.setWSUSafeContract(wsUSafeContract);
 
     toast.success("Wallet connected successfully!");
   } catch (error) {
