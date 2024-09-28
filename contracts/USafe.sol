@@ -208,4 +208,8 @@ contract USafe {
     function getMultiSignRecord(uint64 _recordId) external view returns(MultiSign memory) {
         return mapMultiSignRecord[_recordId];
     }
+
+    function isAdmin(address _addr) external view returns(bool) {
+        return (admin == _addr);
+    }
 }

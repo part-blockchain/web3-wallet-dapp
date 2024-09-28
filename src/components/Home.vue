@@ -96,7 +96,6 @@ let interval;
 
 const walletStore = useWalletStore();
 const configStore = useConfigStore();
-let updateRecordId = "";
 const state = ref("");
 const levelTwoAddr = ref([]);
 const loading = ref(false);
@@ -227,7 +226,6 @@ const handleConfirmTransaction = async (row) => {
   } catch (error) {
     toast.error(`Failed to Confirm Transaction: ${error.message}`);
     console.error("ConfirmTransaction Error:", error);
-    updateRecordId = "";
   } finally {
     loading.value = false;
   }

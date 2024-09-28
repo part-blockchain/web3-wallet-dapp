@@ -273,6 +273,25 @@ export const usafeAbi = [
     "inputs": [
       {
         "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "isAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "newAdmin",
         "type": "address"
       }

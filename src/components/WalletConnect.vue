@@ -73,6 +73,13 @@ const connectWallet = async () => {
     // console.log("usafeAbi======:", usafeAbi);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
     walletStore.setUSafeContract(usafeContract);
+
+    // 设置测试默认参数
+    // console.log("setTokenAddr, tokenaddr======:", configStore.config.ethSeries.tokenAddr);
+    const paramsCfg = configStore.config.ethSeries
+    const transferTokenAddr = paramsCfg.levelTwoAddrList[paramsCfg.testLevelTwoIndex];
+    walletStore.setDefaultParams(paramsCfg.tokenAddr, transferTokenAddr, paramsCfg.ledgerAddr, paramsCfg.transferOutAmount);
+
     // 设置websocket合约对象
     // const wsUrl = configStore.config.ethSeries.wsUrl;
     // const wsProvider = new Web3(wsUrl);

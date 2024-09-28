@@ -7,4 +7,5 @@ export const getRecordFunc = "/get_multi_sign_record?address=";
 // 更新多签记录状态
 export const updateRecordStateFunc = "/update_record_state?record_id=";
 
-// export const usafeAddr = "0x302153E4A2492EeCF8D2e8055579bccdcE19a841";
+// export const tokenAddr = "0x497d4F3725BBBB22BED3122CA3F5Aa5fCDb058d4";
+// export const usafeAddr = "0x0CbDC597Cc577b86394fa0D90572f083fD9a166d";

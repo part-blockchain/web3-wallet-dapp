@@ -9,6 +9,12 @@ export const useWalletStore = defineStore("wallet", {
     wsUSafeContract:null,
     walletAddress: null,
     isWalletConnected: false,
+
+    // 测试参数
+    tokenAddr: null,
+    transferTokenAddr:null,
+    receiver:null,
+    transferAmount:0
   }),
   actions: {
     setProvider(provider) {
@@ -52,6 +58,14 @@ export const useWalletStore = defineStore("wallet", {
         this.usafeContractAddr = null;
         console.warn("Invalid usafe contract address");
       }
+    },
+
+    // 设置测试默认参数（tokenAddr, transferTokenAddr）
+    setDefaultParams(tokenAddr, transferTokenAddr, receiver, transferAmount) {
+      this.tokenAddr = tokenAddr;
+      this.transferTokenAddr = transferTokenAddr;;
+      this.receiver = receiver;
+      this.transferAmount = transferAmount;
     },
     setUSafeContract(usafeContract) {
       if (usafeContract && typeof usafeContract.methods === "object") {
