@@ -36,7 +36,7 @@ const fetchContractData = async () => {
     // Fetch history from contract
     // history.value = await walletStore.contract.methods.getHistory().call();
   } catch (error) {
-    toast.error(`Failed to fetch contract data: ${error.message}`);
+    // toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Error fetching contract data:", error);
   }
 };

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "uat": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "contract:compile": "npx hardhat compile",
