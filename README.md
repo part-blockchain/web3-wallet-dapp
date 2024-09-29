@@ -1,40 +1,11 @@
-# Lottery Simple DApp
-
-## Overview
-
-The Lottery DApp is a decentralized lottery application built using Vue 3, Vite, and Hardhat. It allows users to connect their MetaMask wallet, participate in lottery rounds, and view historical lottery data. The smart contracts are deployed on the Sepolia test network.
-
-## Features
-
-- Connect to MetaMask wallet
-- Start new lottery rounds
-- Buy lottery tickets
-- View current round details
-- View lottery history
-
-## Project Structure
-
-- **contract/**: Contains the smart contract for the lottery.
-  - `Lottery.sol`: The main smart contract for the lottery.
-- **scripts/**: Contains deployment scripts.
-  - `deploy.mjs`: Script to deploy the smart contract.
-- **src/**: Source code for the frontend application.
-  - `App.vue`: Main application component.
-  - `main.js`: Entry point for the Vue application.
-  - **components/**: Vue components for the application.
-    - `AppBar.vue`: Application header component.
-    - `Home.vue`: Main page component showing round details.
-    - `History.vue`: Component to display lottery history.
-    - `WalletConnect.vue`: Component for wallet connection.
-- **.env**: Environment variables for configuration.
 
 ## Installation
 
 1. **Clone the repository:**
 
    ```bash
-   git clone <repository-url>
-   cd lottery
+   git clone git@192.168.3.40:usafe/web3-wallet-dapp.git
+   cd web3-wallet-dapp
    ```
 
 2. **Install dependencies:**
@@ -45,13 +16,13 @@ The Lottery DApp is a decentralized lottery application built using Vue 3, Vite,
 
 ## Development
 
-1. **To start the development server:**
+1. **To start the server:**
 
    ```bash
-   npm run dev
+   npm run uat
    ```
 
-   This will launch the Vite development server and open the application in your browser.
+   This will launch the Vite server and open the application in your browser.
 
 ## Building for Production
 
