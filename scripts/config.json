@@ -1,8 +1,9 @@
 {
   "mysql": {
-    "host": "192.168.3.41",
+    "host": "172.96.11.235",
+    "port": 3908,
     "user": "root",
-    "password": "w3betsDb@123MM",
+    "password": "dappRoot667",
     "database": "multi_sign"
   },
   "ethSeries": {

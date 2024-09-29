@@ -12,6 +12,7 @@ export async function InitMySql() {
   // 创建与 MySQL 数据库的连接
   connection = mysql.createConnection({
     host: config.mysql.host,       // 数据库地址
+    port: config.mysql.port,
     user: config.mysql.user,               // 数据库用户名
     password: config.mysql.password,// 数据库密码
     database: config.mysql.database // 数据库名称

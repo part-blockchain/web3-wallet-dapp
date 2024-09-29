@@ -1,5 +1,5 @@
 // 多签API地址配置
-export const multiSignApiUrl = "http://192.168.120.31:10000";
+export const multiSignApiUrl = "http://172.96.11.235:10000";
 // 开放api
 export const publicApi = "/public"
 // 根据多签地址获取多签记录
