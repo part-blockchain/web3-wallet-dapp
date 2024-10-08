@@ -23,6 +23,15 @@
       </p> -->
       <el-table :data="tableData" row-key="id">
         <el-table-column prop="recordId" label="记录ID" width="150px" />
+        <el-table-column prop="txHash" label="交易Hash" width="150px">
+          <template #default="{ row }">
+            <a target="_blank" style="color:#007bff;" v-if="row.txHash!=null" 
+              v-bind:href="'https://sepolia.etherscan.io/tx/'+row.txHash+'#eventlog'">
+              {{row.txHash}}
+            </a> 
+            <span v-else> {{ row.txHash }}</span>
+          </template>
+        </el-table-column>
         <!-- <el-table-column type="expand">
           <template #default="props">
             <div class="p-[10px]" style="box-sizing: border-box;" v-if="props.row.list?.length">
@@ -181,9 +190,11 @@ const fetchDataFromAPI = async () => {
     // console.log('Data posted:', data.result);
     // toast.info(`data.result: ${data.result}`)
     data.result.forEach(async (record, index) => {
-      // toast.info(`recordid: ${record.RecordId}`)
+      // toast.info(`RecordId: ${record.RecordId}`)
+      // toast.info(`txHash: ${record.txHash}`)
       const item = {
         recordId: record.RecordId,
+        txHash: record.TxHash,
         tokenAddr: record.TokenAddr,
         levelTwoAddr: record.TransferTokenAddr,
         receiver: record.Receiver,

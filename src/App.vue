@@ -5,7 +5,7 @@
       <WalletConnect v-if="!isWalletConnected" />
       <Admin v-if="isWalletConnected && isAdmin" />
       <Home v-if="isWalletConnected" />
-      <!-- <History v-if="isWalletConnected && history.length > 0" /> -->
+      <History v-if="isWalletConnected" />
     </main>
   </div>
 </template>
@@ -24,7 +24,6 @@ import { toast } from "vue3-toastify";
 const walletStore = useWalletStore();
 const isWalletConnected = computed(() => walletStore.isWalletConnected);
 const isAdmin = ref(false);
-const history = ref([]);
 
 const fetchContractData = async () => {
   try {
@@ -33,8 +32,6 @@ const fetchContractData = async () => {
       .isAdmin(walletStore.walletAddress)
       .call();
 
-    // Fetch history from contract
-    // history.value = await walletStore.contract.methods.getHistory().call();
   } catch (error) {
     // toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Error fetching contract data:", error);
