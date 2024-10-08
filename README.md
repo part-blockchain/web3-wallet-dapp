@@ -74,3 +74,46 @@
 - **postcss**: CSS post-processing tool.
 - **tailwindcss**: Utility-first CSS framework.
 - **vite**: Modern build tool for JavaScript projects.
+
+## 操作步骤
+以ganache网络为例：
+- 部署合约
+```bash
+npx hardhat run .\scripts\1_deploy.mjs --network ganache
+```
+> 部署Token合约和USafe合约，并将合约地址写入数据库和config.json文件中。
+
+- 启动订阅服务
+```bash
+npx hardhat run .\scripts\7_listen_contract_event.mjs --network ganache
+```
+> 订阅USafe合约事件， 包括：设置多签地址事件，发起交易请求事件，多签交易确认事件。
+
+- 初始化
+```bash
+npx hardhat run .\scripts\2_initialize.mjs --network ganache
+```
+> 初始化并创建多个二级地址
+
+- 设置多签地址
+```bash
+npx hardhat run .\scripts\3_set_multi_sign_addr.mjs --network ganache
+```
+
+- 转账token到测试的二级地址
+```bash
+npx hardhat run .\scripts\4_transfer_token_to_level_two_addr.mjs --network ganache
+```
+> 从admin地址中，向测试的二级地址中转入一定数量的token。
+
+
+- 发起转账请求
+也可以通过admin地址登陆交易确认系统，在web端创建交易请求。
+```bash
+npx hardhat run .\scripts\5_admin_send_tranfer_request.mjs --network ganache
+```
+
+- 登陆前台
+```bash
+http://localhost:5173
+```

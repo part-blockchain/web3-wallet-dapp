@@ -1,28 +1,31 @@
 {
   "mysql": {
-    "host": "172.96.11.235",
-    "port": 3908,
+    "host": "192.168.3.41",
+    "port": 3306,
     "user": "root",
-    "password": "dappRoot667",
+    "password": "w3betsDb@123MM",
     "database": "multi_sign"
   },
   "ethSeries": {
-    "wsUrl": "wss://sepolia.infura.io/ws/v3/0433aff80aca4c27aa0a309e19c5196c",
+    "wsUrl": "ws://192.168.120.31:8545",
     "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
-    "ledgerAddr": "0xa5164271e8173dc7b63cfdcbbebcc7027439b05a",
+    "ledgerAddr": "0xc3899703e578f13802c0f83fb5ee114a139910f0",
     "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
-    "tokenAddr": "0x6A93a525c2061a1F6eC389dF3ed75f5a262bd4C6",
+    "tokenAddr": "0x4103E49D6727BfDaDC9D18aDC71717A73D7238A5",
     "initialize": true,
-    "usafeAddr": "0x2431B342Ec8E8dD549A1A7fF21141dd93Ddefbd0",
+    "usafeAddr": "0x20C8F139328c8Acc0A3A3fb2d37587a02b53eF51",
     "levelTwoAddrList": [
-      "0x6f470d5a23E7047067DE2cdd4E74b3663f38A660",
-      "0x4FC4e2039eBfbE79BBA47405AFB8B9476e246460",
-      "0x927799D527232779CF2520605fF0fd0bf1b3E2ae"
+      "0x51965333aaAfaFC031eDC2C3CFc2b6A7fa1b73F2",
+      "0x4Fc175B7F23523aB1d146A3Dd01D2e1e7339B163",
+      "0x38C258eda466A6FBcACC9Ce61eA4c126c17499Ae",
+      "0x491c4C4204A71aA5C1f2362cbcdb86ac3b98aBE8",
+      "0x4E5d8D5eC8d7F87b99a8e1102763101a4E1991B7"
     ],
     "testLevelTwoIndex": 0,
     "transferInAmount": 100000000,
     "transferOutAmount": 2000000,
     "recordList": [
+      "7604593741719088689"
     ]
   }
 }

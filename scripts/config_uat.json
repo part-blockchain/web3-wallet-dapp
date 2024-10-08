@@ -1,0 +1,28 @@
+{
+  "mysql": {
+    "host": "172.96.11.235",
+    "port": 3908,
+    "user": "root",
+    "password": "dappRoot667",
+    "database": "multi_sign"
+  },
+  "ethSeries": {
+    "wsUrl": "wss://sepolia.infura.io/ws/v3/0433aff80aca4c27aa0a309e19c5196c",
+    "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
+    "ledgerAddr": "0xa5164271e8173dc7b63cfdcbbebcc7027439b05a",
+    "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
+    "tokenAddr": "0x6A93a525c2061a1F6eC389dF3ed75f5a262bd4C6",
+    "initialize": true,
+    "usafeAddr": "0x2431B342Ec8E8dD549A1A7fF21141dd93Ddefbd0",
+    "levelTwoAddrList": [
+      "0x6f470d5a23E7047067DE2cdd4E74b3663f38A660",
+      "0x4FC4e2039eBfbE79BBA47405AFB8B9476e246460",
+      "0x927799D527232779CF2520605fF0fd0bf1b3E2ae"
+    ],
+    "testLevelTwoIndex": 0,
+    "transferInAmount": 100000000,
+    "transferOutAmount": 2000000,
+    "recordList": [
+    ]
+  }
+}
