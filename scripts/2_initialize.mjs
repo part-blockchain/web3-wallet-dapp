@@ -31,7 +31,7 @@ async function main() {
     config.ethSeries.recordList = [];
   }
 
-  // 查询二级地址
+  // 查询二级地址(多签合约)
   let addrList = await usafe.getLevelSecAddrList();
   if(0 == addrList.length) {
     // 批量创建二级地址

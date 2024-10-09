@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./TransferToken.sol";
+import "./SimpleTransferToken.sol";
 
 /// @title USafe
 /// @notice 商户合约
@@ -13,8 +14,10 @@ contract USafe {
     address admin;
     // 一级地址
     address levelOneAddr;
-    // 二级地址列表
+    // 二级地址列表(多签合约)
     address[] levelTwoAddrList;
+    // 二级地址列表（普通合约）
+    address[] simpleLevelTwoAddrList;
 
     // 结构体：多签信息
     struct MultiSign {
@@ -42,6 +45,11 @@ contract USafe {
     /// @dev 新增成功后调用事件
     /// @param _levelTwoAddrList 新增的二级地址列表
     event BatchAddLevelTwoAddr(address[] _levelTwoAddrList);
+
+    /// @notice 记录新增普通二级地址成功的事件
+    /// @dev 新增成功后调用事件
+    /// @param _levelTwoAddrList 新增的普通的二级地址列表
+    event BatchAddSimpleLevelTwoAddr(address[] _levelTwoAddrList);
 
     /// @notice 转账请求事件
     /// @param _recordId 记录Id
@@ -81,7 +89,7 @@ contract USafe {
         emit Initialize(levelOneAddr);
     }
 
-    /// @notice 批量添加商户的二级地址
+    /// @notice 批量添加商户的二级地址(多签合约)
     /// @dev 批量创建转账合约，生成的合约地址作为商户的二级地址, 并保存到二级地址列表中
     /// @param _numSecondAddr 二级地址数量
     /// @return newAddrList 返回新增的二级地址列表
@@ -120,16 +128,61 @@ contract USafe {
         emit BatchAddLevelTwoAddr(newAddrList);
     }
 
+    /// @notice 批量添加商户的普通二级地址（非多签合约）
+    /// @dev 批量创建转账合约，生成的合约地址作为商户的二级地址, 并保存到二级地址列表中
+    /// @param _numSecondAddr 二级地址数量
+    /// @return newAddrList 返回新增的二级地址列表
+    function batchAddSimpleLevelTwoAddr(uint256 _numSecondAddr) external returns(address[] memory newAddrList) {
+        require(msg.sender == admin, "caller is not contract admin.");
+        require(_numSecondAddr > 0, "The number of addresses added in batches must be greater than 0.");
+        // 部署合约的data
+        bytes memory codeData = type(SimpleTransferToken).creationCode;
+        assembly {
+            // 计算hash
+            mstore(0, simpleLevelTwoAddrList.slot)
+            let hash := keccak256(0, 32)
+
+            newAddrList := mload(0x40)
+            // 保存新增列表长度
+            mstore(newAddrList, _numSecondAddr)
+            // 获取原来动态数组长度
+            let len := sload(simpleLevelTwoAddrList.slot)
+            for {let i := 0} lt(i, _numSecondAddr) {i := add(i, 1)} {
+                // 创建合约
+                let addr := create(0, add(codeData, 0x20), mload(codeData))
+                // 保存地址到新增列表
+                mstore(add(add(newAddrList, 0x20), mul(i, 0x20)), addr)
+                // 保存数据
+                sstore(add(hash, add(len, i)), addr)
+                // 更新长度
+                sstore(simpleLevelTwoAddrList.slot, add(add(len, i), 1))
+            }
+            // 总字节数
+            let byteSize := mul(_numSecondAddr, 0x20)
+            mstore(0x40, add(newAddrList, and(add(add(byteSize, 0x20), 0x1f), not(0x1f))))
+        }
+        
+        // 批量部署转账合约(二级地址)
+        // 记录事件
+        emit BatchAddSimpleLevelTwoAddr(newAddrList);
+    }
+
     /// @notice 查询商户一级地址
     /// @return address 返回商户一级地址
     function getLevelOneAddr() external view returns(address) {
         return levelOneAddr;
     }
 
-    /// @notice 查询商户二级地址
+    /// @notice 查询商户二级地址(多签合约)
     /// @return address 返回商户二级地址
     function getLevelSecAddrList() external view returns(address[] memory) {
         return levelTwoAddrList;
+    }
+
+    /// @notice 查询商户二级地址（普通，非多签合约）
+    /// @return address 返回商户二级地址
+    function getSimpleLevelSecAddrList() external view returns(address[] memory) {
+        return simpleLevelTwoAddrList;
     }
 
     // 更新管理员地址

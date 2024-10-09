@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 /// @title TransferToken
-/// @dev 转账合约（通过合约调用，将指定的Token余额从合约地址转到目标地址）
+/// @dev 转账合约（通过合约调用，将指定的Token余额从合约地址转到目标地址）， 多签合约
 contract TransferToken {
     // USafe合约地址
     address usafeAddr;
