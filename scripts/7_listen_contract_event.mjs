@@ -114,10 +114,15 @@ async function listenTransferRequestEvent(usafeContract) {
     if(0 == records.length) {
       // 插入多签记录到数据库表中
       // 写入数据库
-      const insertSql = `INSERT INTO t_multi_sign_record (record_id, tx_hash, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-      values = [result._recordId, event.transactionHash, result._caller, result._tokenAddr, result._levelTwoAddr, result._to, result._amount, 0];
-      const data = await InsertData(insertSql, values);
+      let insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      values = [result._recordId, result._caller, result._tokenAddr, result._levelTwoAddr, result._to, result._amount, 0];
+      let data = await InsertData(insertSql, values);
       console.log('insert multi sign record successfully, data:', data);
+
+      insertSql = `INSERT INTO t_tx_multi_sign (record_id, tx_hash, state) VALUES (?, ?, ?)`;
+      values = [result._recordId, event.transactionHash, 0];
+      data = await InsertData(insertSql, values);
+      console.log('insert tx info successfully for multi sign, data:', data);
     }
   })
 
@@ -144,27 +149,22 @@ async function listenConfirmTransactionEvent(usafeContract) {
           
       // 查询状态为1的多签记录
       const selectSql = `select * from t_multi_sign_record where record_id = ? and state = 0`;
-      const values = [result._recordId];
+      let values = [result._recordId];
       let results = await QueryDataByValues(selectSql, values);
       console.log('select data from t_multi_sign_record successfully, results:', results);
 
-      // // 更新状态
-      // if(results.length > 0) {
-      //   // update
-      //   const updateSql = `UPDATE t_multi_sign_record SET state = 1 WHERE record_id = ?`;
-      //   let info = await UpdateData(updateSql, values);
-      //   console.log('update t_multi_sign_record successfully, results:', info);
-      // }
+      
+      if(results.length > 0) {
+        // 更新状态
+        const updateSql = `UPDATE t_multi_sign_record SET state = 1 WHERE record_id = ?`;
+        let info = await UpdateData(updateSql, values);
+        console.log('update t_multi_sign_record successfully, results:', info);
 
-
-      if(1 == results.length) {
-        let record = results[0];
-        // 插入多签记录到数据库表中
-        // 写入数据库
-        const insertSql = `INSERT INTO t_multi_sign_record (record_id, tx_hash, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const values = [record.record_id, event.transactionHash, record.admin_addr, record.token_addr, record.transfer_token_addr, record.receiver, record.amount, 1];
-        const data = await InsertData(insertSql, values);
-        console.log('confirm transaction successfully, insert multi sign record, data:', data);
+        // 插入交易记录
+        const insertSql = `INSERT INTO t_tx_multi_sign (record_id, tx_hash, state) VALUES (?, ?, ?)`;
+        values = [result._recordId, event.transactionHash, 1];
+        let data = await InsertData(insertSql, values);
+        console.log('insert tx info successfully for multi sign, data:', data);
       }
   });
 
