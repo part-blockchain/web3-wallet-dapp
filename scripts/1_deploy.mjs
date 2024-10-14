@@ -46,6 +46,9 @@ async function main() {
   config.ethSeries.initialize = false;
   config.ethSeries.tokenAddr = token.target;
   config.ethSeries.usafeAddr = usafe.target;
+  config.ethSeries.levelOneAddr = "";
+  config.ethSeries.levelTwoAddrList = [];
+  config.ethSeries.recordList = [];
   jsonfile.writeFileSync(configFile, config, {spaces: 2});
 
   // 写入数据库

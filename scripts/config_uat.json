@@ -14,12 +14,13 @@
     "tokenAddr": "0x6A93a525c2061a1F6eC389dF3ed75f5a262bd4C6",
     "initialize": true,
     "usafeAddr": "0x2431B342Ec8E8dD549A1A7fF21141dd93Ddefbd0",
+    "businessIdList":[],
     "levelTwoAddrList": [
       "0x6f470d5a23E7047067DE2cdd4E74b3663f38A660",
       "0x4FC4e2039eBfbE79BBA47405AFB8B9476e246460",
       "0x927799D527232779CF2520605fF0fd0bf1b3E2ae"
     ],
-    "testLevelTwoIndex": 0,
+    "testIndex": 0,
     "transferInAmount": 100000000,
     "transferOutAmount": 2000000,
     "recordList": [

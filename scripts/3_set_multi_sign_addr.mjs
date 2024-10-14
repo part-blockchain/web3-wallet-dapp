@@ -5,7 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 
-// 设置多签地址
+// 设置多签地址(一级地址为多签合约，Ledger为测试的多签地址)
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -20,44 +20,41 @@ async function main() {
 
   const [deployer, addr1, addr2] = await ethers.getSigners();
   console.log("the accounts list:", deployer.address, addr1.address, addr2.address);
-
+  // 初始化USafe合约
+  const USafe = await hre.ethers.getContractFactory("USafe");
+  // 链接合约地址
+  const usafe = USafe.attach(config.ethSeries.usafeAddr);
   // 设置多签地址
-  if(0 == config.ethSeries.levelTwoAddrList.length) {
-    console.log("Please execute the initialization script to initialize the secondary address first");
+  const admin = await usafe.getAdmin();
+  if("0x0000000000000000000000000000000000000000" == admin) {
+    console.log("Please execute the initialization script to initialize");
     return;
   }
 
-  // 将第一个二级地址作为测试地址
-  const index = config.ethSeries.testLevelTwoIndex;
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
-  // 查询多签地址
-  const TransferToken = await hre.ethers.getContractFactory("TransferToken");
-  const transferToken = TransferToken.attach(testLevelTwoAddr);
-
-  let multiSignAddr = await transferToken.GetMultiSignAddr();
+  // 测试商户ID
+  const businessId = config.ethSeries.businessIdList[config.ethSeries.testIndex];
+  let multiSignAddr = await usafe.GetMultiSignAddr(businessId);
   // 转账合约未设置多签地址
   if(multiSignAddr == "0x0000000000000000000000000000000000000000") {
-    // 初始化USafe合约
-    const USafe = await hre.ethers.getContractFactory("USafe");
-    // 链接合约地址
-    const usafe = USafe.attach(config.ethSeries.usafeAddr);
     console.log("start to set multi sign address...");
     // 将ledger地址作为多签地址
-    await usafe.SetMultiSignAddr(testLevelTwoAddr, config.ethSeries.ledgerAddr);
-    multiSignAddr = await transferToken.GetMultiSignAddr();
+    await usafe.SetMultiSignAddr(businessId, config.ethSeries.ledgerAddr);
+    multiSignAddr = await usafe.GetMultiSignAddr(businessId);
 
     // 在订阅事件服务中处理
     // // 初始化数据库
     // await InitMySql();
-    // // 插入数据到表中(t_transfer_token_info)
-    // const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
-    // const values = [testLevelTwoAddr, multiSignAddr];
+    // // 插入数据到表中(t_multi_sign_address_info)
+    // const insertSql = `INSERT INTO t_multi_sign_address_info (business_id, multi_sign_addr) VALUES (?, ?)`;
+    // const values = [businessId, multiSignAddr];
     // const info = await InsertData(insertSql, values);
     // console.log('insert transfer token info successfully, results:', info);
     // CloseDB();
+  } else {
+    console.log("Multiple signature addresses have been configured and do not need to be configured.");
   }
 
-  console.log("TransferToken addr:", testLevelTwoAddr, ", multiSignAddr:", multiSignAddr)
+  console.log("businessId:", businessId, ", multiSignAddr:", multiSignAddr)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -4,6 +4,9 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
+
+// 初始化USafe合约，创建一级地址
+
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const hre = require("hardhat");
@@ -31,16 +34,6 @@ async function main() {
     config.ethSeries.recordList = [];
   }
 
-  // 查询二级地址(多签合约)
-  let addrList = await usafe.getLevelSecAddrList();
-  if(0 == addrList.length) {
-    // 批量创建二级地址
-    await usafe.batchAddLevelTwoAddr(numSecondAddr);
-    addrList = await usafe.getLevelSecAddrList();
-    config.ethSeries.levelTwoAddrList = addrList; // 更新二级地址到配置文件
-  }
-
-  console.log("level two address list: [" + addrList + "].");
   // 更新config.json文件
   jsonfile.writeFileSync(configFile, config, {spaces: 2});
 }

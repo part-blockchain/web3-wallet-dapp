@@ -5,7 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 
-// 转账erc20到level two地址
+// 转账erc20到多签合约地址（即一级合约地址）
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -21,14 +21,17 @@ async function main() {
   console.log("the accounts list:", deployer.address, addr1.address, addr2.address);
 
   // 设置多签地址
-  if(0 == config.ethSeries.levelTwoAddrList.length) {
-    console.log("Please execute the initialization script to initialize the secondary address first");
+  // 初始化USafe合约
+  const USafe = await hre.ethers.getContractFactory("USafe");
+  // 链接合约地址
+  const usafe = USafe.attach(config.ethSeries.usafeAddr);
+  const admin = await usafe.getAdmin();
+  if("0x0000000000000000000000000000000000000000" == admin) {
+    console.log("Please execute the initialization script to initialize");
     return;
   }
-
-  // 将第一个二级地址作为测试地址
-  const index = config.ethSeries.testLevelTwoIndex;
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
+  // usafe地址为多签合约地址
+  const usafeAddr = config.ethSeries.usafeAddr;
 
   // 查询token余额
   const ERC20Token = await hre.ethers.getContractFactory("ERC20Token");
@@ -36,13 +39,14 @@ async function main() {
   // 链接合约地址
   const tokenObj = ERC20Token.attach(config.ethSeries.tokenAddr);
   // 查询余额
-  let amount = await tokenObj.balanceOf(testLevelTwoAddr);
+  let amount = await tokenObj.balanceOf(usafeAddr);
   if(amount < config.ethSeries.transferOutAmount) {
-    console.log("start to transfer token...");
-    await tokenObj.transfer(testLevelTwoAddr, config.ethSeries.transferInAmount);
-    amount = await tokenObj.balanceOf(testLevelTwoAddr);
+    console.log("start to transfer token to multi sign contract address...");
+  let amount = await tokenObj.balanceOf(usafeAddr);
+  await tokenObj.transfer(usafeAddr, config.ethSeries.transferInAmount);
+    amount = await tokenObj.balanceOf(usafeAddr);
   }
-  console.log("level two address:", testLevelTwoAddr, ", token amount:", amount);
+  console.log("multi sign contract address(usafe address):", usafeAddr, ", token amount:", amount);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

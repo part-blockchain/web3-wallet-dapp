@@ -5,7 +5,7 @@
       <!-- <div class="flex border-b border-gray-700 pb-2 mb-2">
         <div class="w-1/6 font-semibold">记录ID</div>
         <div class="w-1/6 font-semibold">Token地址</div>
-        <div class="w-1/6 font-semibold">转账合约地址</div>
+        <div class="w-1/6 font-semibold">多签合约地址</div>
         <div class="w-1/6 font-semibold">接收Token地址</div>
         <div class="w-1/6 font-semibold">提现金额</div>
         <div class="w-1/6 font-semibold">状态</div>
@@ -14,7 +14,7 @@
       <!-- <p class="flex">
         <div class="w-1/6">{{ recordId }}</div>
         <div class="w-1/6">{{ prizePool }} ETH</div>
-        <div class="w-1/6">{{ levelTwoAddr.length }}</div>
+        <div class="w-1/6">{{ businessId.length }}</div>
         <div
           :class="['w-1/6', state == 1 ? 'text-green-500' : 'text-red-500']"
         >
@@ -38,8 +38,8 @@
               详情
               <el-table :data="props.row.list" :size="'small'">
                 <el-table-column prop="recordId" width="100px" label="记录ID" />
+                <el-table-column prop="businessId" width="100px" label="商户ID" />
                 <el-table-column prop="tokenAddr" width="100px" label="Token地址" />
-                <el-table-column prop="levelTwoAddr" width="100px" label="转账合约地址" />
                 <el-table-column prop="receiver" width="100px" label="接收Token地址" />
                 <el-table-column prop="operation" width="100px" label="操作">
                   <template #default="{ row }">
@@ -50,8 +50,8 @@
             </div>
           </template>
         </el-table-column> -->
+        <el-table-column prop="businessId" label="商户ID" />
         <el-table-column prop="tokenAddr" label="Token地址" />
-        <el-table-column prop="levelTwoAddr" label="转账合约地址" />
         <el-table-column prop="receiver" label="接收Token地址" />
         <el-table-column prop="amount" label="提现金额" />
         <el-table-column prop="state" label="状态">
@@ -106,7 +106,7 @@ let interval;
 const walletStore = useWalletStore();
 const configStore = useConfigStore();
 const state = ref("");
-const levelTwoAddr = ref([]);
+const businessId = ref([]);
 const loading = ref(false);
 const tableData = ref([]);
 
@@ -121,23 +121,22 @@ const fetchContractData = async () => {
       // alert("recordId:" + recordId);
       // console.log("walletStore.usafeContract===:" ,walletStore.usafeContract);
       console.log("recordId:" , recordId);
-      const multiSignRes = await walletStore.usafeContract.methods.getMultiSignRecord(recordId).call();
+      const multiSignRes = await walletStore.usafeContract.methods.GetMultiSignRecord(recordId).call();
       // console.log("tokenAddr:" , multiSignRes.tokenAddr);
-      // console.log("levelTwoAddr:" , multiSignRes.levelTwoAddr);
+      // console.log("businessId:" , multiSignRes.businessId);
       // console.log("receiver:" , multiSignRes.receiver);
       // console.log("amount:" , multiSignRes.amount);
       // console.log("state:" , multiSignRes.state);
 
       // 过滤多签地址为连接的钱包地址
       // alert("walletStore.walletAddress:" + walletStore.walletAddress);
-      const transferToken = walletStore.newContractObj(transferTokenAbi, multiSignRes.levelTwoAddr);
-      const multiSignAddr = await transferToken.methods.GetMultiSignAddr().call();
+      const multiSignAddr = await walletStore.usafeContract.methods.GetMultiSignAddr(multiSignRes.businessId).call();
       // alert("multiSignAddr:" + multiSignAddr);
       if(multiSignAddr.toLowerCase() === walletStore.walletAddress.toLowerCase() && !multiSignRes.state) {
         const item = {
           recordId: recordId,
+          businessId: multiSignRes.businessId,
           tokenAddr: multiSignRes.tokenAddr,
-          levelTwoAddr: multiSignRes.levelTwoAddr,
           receiver: multiSignRes.receiver,
           amount: multiSignRes.amount,
           state: multiSignRes.state,
@@ -149,13 +148,13 @@ const fetchContractData = async () => {
     //   id: 3,
     //   recordId: recordId.value,
     //   tokenAddr: tokenAddr.value,
-    //   levelTwoAddr: levelTwoAddr.value,
+    //   businessId: businessId.value,
     //   state: state.value,
     //   list: [{
     //     id: 31,
       //   recordId: recordId.value,
       //   tokenAddr: tokenAddr.value,
-      //   levelTwoAddr: levelTwoAddr.value,
+      //   businessId: businessId.value,
       //   state: state.value,
     //   }]
     // }];
@@ -196,7 +195,7 @@ const fetchDataFromAPI = async () => {
         recordId: record.RecordId,
         txHash: record.TxHash,
         tokenAddr: record.TokenAddr,
-        levelTwoAddr: record.TransferTokenAddr,
+        businessId: record.BusinessId,
         receiver: record.Receiver,
         amount: record.Amount,
         state: record.State,

@@ -28,10 +28,8 @@ const isAdmin = ref(false);
 const fetchContractData = async () => {
   try {
     // Check if user is admin
-    isAdmin.value = await walletStore.usafeContract.methods
-      .isAdmin(walletStore.walletAddress)
-      .call();
-
+    console.log("walletStore.usafeContract:", walletStore.usafeContract);
+    isAdmin.value = await walletStore.usafeContract.methods.isAdmin(walletStore.walletAddress).call();
   } catch (error) {
     // toast.error(`Failed to fetch contract data: ${error.message}`);
     console.error("Error fetching contract data:", error);

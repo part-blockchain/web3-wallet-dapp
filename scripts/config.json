@@ -10,22 +10,20 @@
     "wsUrl": "ws://192.168.120.31:8545",
     "mnemonic": "sure escape educate foster rebel convince female glide sick chair actress forward",
     "ledgerAddr": "0xc3899703e578f13802c0f83fb5ee114a139910f0",
-    "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
-    "tokenAddr": "0xF21A86D372b33c563460Cd976f4962f9b67B8076",
-    "initialize": true,
-    "usafeAddr": "0x1F77F3F65fD3A46a0052408c64Bcf02b4f6bAed1",
-    "levelTwoAddrList": [
-      "0x9B1Ebcc2463F618ce3A94B8c70509ef4370781db",
-      "0x839892782c5C7A517657779BD07654Cf341bb0F3",
-      "0x51F8084d2d72a55de257753601a790fCce133482",
-      "0xEfD4E47e1B2478fD6c6b027AA03EA0728562F054",
-      "0x8C219D31dED3bdEbc23863D020f6C24050aE044B"
+    "businessIdList": [
+      "SH20241000004"
     ],
-    "testLevelTwoIndex": 0,
+    "from": "0x86d5b5903b0330d76b47D368bebF5A74dB6251dB",
+    "tokenAddr": "0x5905023f2ED2B3f60e29e25a6089070a7dF3BaeD",
+    "initialize": true,
+    "usafeAddr": "0xf7B7944810D1A507279cD964cF6220c498F68b2c",
+    "levelOneAddr": "",
+    "levelTwoAddrList": [],
+    "testIndex": 0,
     "transferInAmount": 100000000,
     "transferOutAmount": 2000000,
     "recordList": [
-      "3835533684946590091"
+      "12442056421869984962"
     ]
   }
 }

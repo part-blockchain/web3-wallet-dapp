@@ -13,8 +13,8 @@
             <span v-else> {{ row.txHash }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="businessId" label="商户ID" />
         <el-table-column prop="tokenAddr" label="Token地址" />
-        <el-table-column prop="levelTwoAddr" label="转账合约地址" />
         <el-table-column prop="receiver" label="接收Token地址" />
         <el-table-column prop="amount" label="提现金额" />
         <el-table-column prop="state" label="状态">
@@ -44,7 +44,6 @@ let interval;
 const walletStore = useWalletStore();
 const configStore = useConfigStore();
 const state = ref("");
-const levelTwoAddr = ref([]);
 const loading = ref(false);
 const tableData = ref([]);
 
@@ -74,7 +73,7 @@ const fetchDataFromAPI = async () => {
         recordId: record.RecordId,
         txHash: record.TxHash,
         tokenAddr: record.TokenAddr,
-        levelTwoAddr: record.TransferTokenAddr,
+        businessId: record.BusinessId,
         receiver: record.Receiver,
         amount: record.Amount,
         state: record.State,

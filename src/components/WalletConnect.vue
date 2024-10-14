@@ -30,7 +30,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import Web3 from "web3";
-import { usafeAbi } from "../utils/usafeAbi";
+// import { usafeAbi } from "../utils/usafeAbi";
 import { toast } from "vue3-toastify";
 import { useWalletStore } from "../stores/walletStore";
 import { useConfigStore } from "../stores/configStore";
@@ -65,26 +65,41 @@ const connectWallet = async () => {
     await configStore.loadConfig();
     const accounts = await walletStore.provider.eth.requestAccounts();
     // console.log("setWalletAddress, accounts[0]======:", accounts[0]);
-    walletStore.setWalletAddress(accounts[0]);
 
     // 设置usafe合约地址
     // console.log("setUSafeContractAddr, usafeAddr======:", configStore.config.ethSeries.usafeAddr);
     walletStore.setUSafeContractAddr(configStore.config.ethSeries.usafeAddr);
     // console.log("usafeAbi======:", usafeAbi);
+
+    // 读取abi文件
+    const response = await fetch('../../artifacts/contracts/USafe.sol/USafe.json');
+    if (!response.ok) {
+      console.error('Failed to load usafe abi config file:', response.status);
+      return; 
+    }
+    const usafeInfo = await response.json();
+    const usafeAbi = usafeInfo.abi;
+    // toast.info(`usafeAbi:${usafeAbi}`);
+    console.log("usafeAbi:", usafeAbi);
+    console.log("walletStore.usafeContractAddr:", walletStore.usafeContractAddr);
     const usafeContract = new web3.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
+    console.log("usafeContract.methods========:", usafeContract.methods);
     walletStore.setUSafeContract(usafeContract);
 
     // 设置测试默认参数
     // console.log("setTokenAddr, tokenaddr======:", configStore.config.ethSeries.tokenAddr);
     const paramsCfg = configStore.config.ethSeries
-    const transferTokenAddr = paramsCfg.levelTwoAddrList[paramsCfg.testLevelTwoIndex];
-    walletStore.setDefaultParams(paramsCfg.tokenAddr, transferTokenAddr, paramsCfg.ledgerAddr, paramsCfg.transferOutAmount);
+    const multiSignContractAddr = paramsCfg.levelOneAddr;
+    walletStore.setDefaultParams(paramsCfg.tokenAddr, multiSignContractAddr, paramsCfg.ledgerAddr, paramsCfg.transferOutAmount);
 
     // 设置websocket合约对象
     // const wsUrl = configStore.config.ethSeries.wsUrl;
     // const wsProvider = new Web3(wsUrl);
     // wsUSafeContract = new wsProvider.eth.Contract(usafeAbi, walletStore.usafeContractAddr);
     // walletStore.setWSUSafeContract(wsUSafeContract);
+
+    // 放到最后，表示已连接钱包
+    walletStore.setWalletAddress(accounts[0]);
 
     toast.success("Wallet connected successfully!");
   } catch (error) {
@@ -100,7 +115,7 @@ const handleAccountsChanged = (accounts) => {
     // No accounts available, user has disconnected
     walletStore.setWalletAddress(null);
     walletStore.setProvider(null);
-    walletStore.setUSafeContract(null);
+    // walletStore.setUSafeContract(null);
     toast.info("Wallet disconnected.");
   } else {
     // Account changed, update wallet address

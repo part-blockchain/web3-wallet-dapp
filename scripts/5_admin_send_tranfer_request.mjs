@@ -22,34 +22,15 @@ async function main() {
   const [deployer, addr1, addr2] = await ethers.getSigners();
   console.log("the accounts list:", deployer.address, addr1.address, addr2.address);
 
-  // 设置多签地址
-  if(0 == config.ethSeries.levelTwoAddrList.length) {
-    console.log("Please execute the initialization script to initialize the secondary address first");
-    return;
-  }
-
-  // 将第一个二级地址作为测试地址
-  const index = config.ethSeries.testLevelTwoIndex;
-  const testLevelTwoAddr = config.ethSeries.levelTwoAddrList[index];
-
-  // // 查询token余额
-  // const ERC20Token = await hre.ethers.getContractFactory("ERC20Token");
-  // // 链接合约地址
-  // const tokenObj = ERC20Token.attach(config.ethSeries.tokenAddr);
-  // // 查询余额
-  // let amount = await tokenObj.balanceOf(testLevelTwoAddr);
-  // if(amount < config.ethSeries.transferOutAmount) {
-  //   console.log("The token balance of levelTwoAddr:[", testLevelTwoAddr,"] is insufficient, please recharge!");
-  //   return;
-  // }
-
   // 初始化USafe合约
   const USafe = await hre.ethers.getContractFactory("USafe");
   // 链接合约地址
   const usafe = USafe.attach(config.ethSeries.usafeAddr);
-  console.log("start to send transfer request...");
+  console.log("start to send transfer request transaction...");
   // 将ledger地址作为多签地址
-  const tx = await usafe.TransferRequest(config.ethSeries.tokenAddr, testLevelTwoAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount * 2);
+  // 测试商户ID
+  const businessId = config.ethSeries.businessIdList[config.ethSeries.testIndex];
+  const tx = await usafe.TransferRequest(businessId, config.ethSeries.tokenAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount);
   // console.log("tx:", tx);
   const receipt = await tx.wait(); // 等待交易被确认
   // 处理事件
@@ -69,7 +50,7 @@ async function main() {
               config.ethSeries.recordList.push(recordId);
               // 在订阅服务中处理
               // // 写入数据库
-              // const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+              // const insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, multi_sign_contract_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
               // const values = [recordId, deployer.address, config.ethSeries.tokenAddr, testLevelTwoAddr, config.ethSeries.ledgerAddr, config.ethSeries.transferOutAmount * 2, 0];
               // const info = await InsertData(insertSql, values);
               // console.log('insert multi sign record successfully, results:', info);

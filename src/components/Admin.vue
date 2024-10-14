@@ -74,8 +74,8 @@ const walletStore = useWalletStore();
 const loading = ref(false);
 let show_input_transfer_request = ref(false);
 let input_transfer_request = [         // 定义输入框的名称和初始值
+    { name: '商户ID', value: "SH20241000004" },
     { name: 'token地址', value: walletStore.tokenAddr },
-    { name: '转账合约地址', value: walletStore.transferTokenAddr },
     { name: 'token接收地址', value: walletStore.receiver },
     { name: 'token数量', value: walletStore.transferAmount.toString() },
 ];
@@ -83,7 +83,7 @@ let input_transfer_request = [         // 定义输入框的名称和初始值
 // 设置多签
 let show_input_setMultiSignAddr = ref(false);
 let input_setMultiSignAddr = [         // 定义输入框的名称和初始值
-    { name: '转账合约地址', value: walletStore.transferTokenAddr },
+    { name: '商户ID', value: "SH20241000004"},
     { name: '多签地址', value: walletStore.receiver },
 ];
 
@@ -119,6 +119,7 @@ const sendTransferRequest = async (params) =>  {
   // submittedData = params; // 存储已提交的数据
   try {
     // 预估gas
+    // 注意：不需要传入多签合约地址，默认一级地址为多签合约地址
     const gas = await walletStore.usafeContract.methods.TransferRequest(params[0], params[1], params[2], params[3]).estimateGas({
       from: walletStore.walletAddress,
     });

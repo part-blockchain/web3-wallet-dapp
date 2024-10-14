@@ -12,7 +12,7 @@ export const useWalletStore = defineStore("wallet", {
 
     // 测试参数
     tokenAddr: null,
-    transferTokenAddr:null,
+    multiSignContractAddr:null,
     receiver:null,
     transferAmount:0
   }),
@@ -60,10 +60,10 @@ export const useWalletStore = defineStore("wallet", {
       }
     },
 
-    // 设置测试默认参数（tokenAddr, transferTokenAddr）
-    setDefaultParams(tokenAddr, transferTokenAddr, receiver, transferAmount) {
+    // 设置测试默认参数（tokenAddr, multiSignContractAddr）
+    setDefaultParams(tokenAddr, multiSignContractAddr, receiver, transferAmount) {
       this.tokenAddr = tokenAddr;
-      this.transferTokenAddr = transferTokenAddr;;
+      this.multiSignContractAddr = multiSignContractAddr;;
       this.receiver = receiver;
       this.transferAmount = transferAmount;
     },

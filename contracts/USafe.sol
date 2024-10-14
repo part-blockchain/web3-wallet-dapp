@@ -1,30 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./TransferToken.sol";
-import "./SimpleTransferToken.sol";
 
 /// @title USafe
 /// @notice 商户合约
-/// @dev 批量创建一级，二级地址
+/// @dev USafe多签合约
 contract USafe {
     // 兼容v1.0
     uint8 _initialized;
     bool _initializing;
     // 合约部署者
     address admin;
-    // 一级地址
-    address levelOneAddr;
-    // 二级地址列表(多签合约)
-    address[] levelTwoAddrList;
-    // 二级地址列表（普通合约）
-    address[] simpleLevelTwoAddrList;
+
+    // 商户对应的多签地址
+    mapping(string => address) private businessIdToMultiSignAddr;
 
     // 结构体：多签信息
-    struct MultiSign {
+    struct MultiSignInfo {
+        // 商户ID
+        string businessId;
         // token地址
         address tokenAddr;
-        // 二级地址
-        address levelTwoAddr;
         // 接收地址
         address receiver;
         // 转账金额
@@ -34,208 +29,100 @@ contract USafe {
     }
 
     // 多签记录
-    mapping(uint64 => MultiSign) private mapMultiSignRecord;
-    uint256 countMultiSignRecords;
+    mapping(uint64 => MultiSignInfo) private mapMultiSignRecord;
+    uint256 counts;
 
     /// @notice 初始化成功的事件
-    /// @param _levelOneAddr 商户一级地址
-    event Initialize(address indexed _levelOneAddr);
+    /// @param _admin 管理员地址
+    event Initialize(address indexed _admin);
 
-    /// @notice 记录新增二级地址成功的事件
-    /// @dev 新增成功后调用事件
-    /// @param _levelTwoAddrList 新增的二级地址列表
-    event BatchAddLevelTwoAddr(address[] _levelTwoAddrList);
-
-    /// @notice 记录新增普通二级地址成功的事件
-    /// @dev 新增成功后调用事件
-    /// @param _levelTwoAddrList 新增的普通的二级地址列表
-    event BatchAddSimpleLevelTwoAddr(address[] _levelTwoAddrList);
+    /// @notice 设置多签地址事件
+    /// @param _caller 发起交易确认交易的账户地址, 必须和转账合约指定的多签地址相同
+    /// @param _businessId 商户ID
+    /// @param _multiSignAddr 多签地址
+    event SetMultiSignAddrEvent(address indexed _caller, string _businessId, address _multiSignAddr);
 
     /// @notice 转账请求事件
     /// @param _recordId 记录Id
     /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的admin相同
-    /// @param _levelTwoAddr 付款地址，即转账合约地址
+    /// @param _businessId 商户ID
     /// @param _tokenAddr token合约地址
     /// @param _to 收款地址
     /// @param _amount 转账金额
-    event TransferRequestEvent(uint64 indexed _recordId, address indexed _caller, address indexed _levelTwoAddr, address _tokenAddr, address _to, uint256 _amount);
+    event TransferRequestEvent(uint64 indexed _recordId, address indexed _caller, string _businessId, address _tokenAddr, address _to, uint256 _amount);
 
     /// @notice 交易确认事件
     /// @param _recordId 记录Id
     /// @param _caller 发起交易确认交易的账户地址, 必须和转账合约指定的多签地址相同
     event ConfirmTransactionEvent(uint64 indexed _recordId, address indexed _caller);
 
-    /// @notice 设置多签地址事件
-    /// @param _caller 发起交易确认交易的账户地址, 必须和转账合约指定的多签地址相同
-    /// @param _levelTwoAddr 转账合约地址
-    /// @param _multiSignAddr 多签地址
-    event SetMultiSignAddrEvent(address indexed _caller, address indexed _levelTwoAddr, address indexed _multiSignAddr);
+    /// @notice 记录调用合约转账token的事件
+    /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的usafeAddr相同
+    /// @param _from 付款地址，即转账合约地址
+    /// @param _to 收款地址
+    /// @param _amount 转账金额
+    event TransferERC20Token(address indexed _caller, address indexed _from, address indexed _to, uint _amount);
 
-    /// @notice 初始化函数, 保存合约admin
+    /// @notice 初始化函数, 保存合约owner
     /// @dev 创建商户一级地址 (0x8129fc1c)
     function initialize() external {
-        require(levelOneAddr == address(0), "Already initialized");
-        bytes memory codeData = type(TransferToken).creationCode;
-        // _initialized = 1;
-        // _initializing = true;
-        // admin = tx.origin;
+        require(admin == address(0), "Already initialized");
+
         assembly {
-            // 兼容v1.0, _initialized，_initializing和admin放在一个槽位上
+            // 兼容v1.0, _initialized，_initializing和owner放在一个槽位上
             sstore(admin.slot, shl(16, origin()))
-            let addr := create(0, add(codeData, 0x20), mload(codeData))
-            sstore(levelOneAddr.slot, addr)
         }
-        // 创建一级地址，二级地址成功事件
-        emit Initialize(levelOneAddr);
-    }
-
-    /// @notice 批量添加商户的二级地址(多签合约)
-    /// @dev 批量创建转账合约，生成的合约地址作为商户的二级地址, 并保存到二级地址列表中
-    /// @param _numSecondAddr 二级地址数量
-    /// @return newAddrList 返回新增的二级地址列表
-    function batchAddLevelTwoAddr(uint256 _numSecondAddr) external returns(address[] memory newAddrList) {
-        require(msg.sender == admin, "caller is not contract admin.");
-        require(_numSecondAddr > 0, "The number of addresses added in batches must be greater than 0.");
-        // 部署合约的data
-        bytes memory codeData = type(TransferToken).creationCode;
-        assembly {
-            // 计算hash
-            mstore(0, levelTwoAddrList.slot)
-            let hash := keccak256(0, 32)
-
-            newAddrList := mload(0x40)
-            // 保存新增列表长度
-            mstore(newAddrList, _numSecondAddr)
-            // 获取原来动态数组长度
-            let len := sload(levelTwoAddrList.slot)
-            for {let i := 0} lt(i, _numSecondAddr) {i := add(i, 1)} {
-                // 创建合约
-                let addr := create(0, add(codeData, 0x20), mload(codeData))
-                // 保存地址到新增列表
-                mstore(add(add(newAddrList, 0x20), mul(i, 0x20)), addr)
-                // 保存数据
-                sstore(add(hash, add(len, i)), addr)
-                // 更新长度
-                sstore(levelTwoAddrList.slot, add(add(len, i), 1))
-            }
-            // 总字节数
-            let byteSize := mul(_numSecondAddr, 0x20)
-            mstore(0x40, add(newAddrList, and(add(add(byteSize, 0x20), 0x1f), not(0x1f))))
-        }
-        
-        // 批量部署转账合约(二级地址)
-        // 记录事件
-        emit BatchAddLevelTwoAddr(newAddrList);
-    }
-
-    /// @notice 批量添加商户的普通二级地址（非多签合约）
-    /// @dev 批量创建转账合约，生成的合约地址作为商户的二级地址, 并保存到二级地址列表中
-    /// @param _numSecondAddr 二级地址数量
-    /// @return newAddrList 返回新增的二级地址列表
-    function batchAddSimpleLevelTwoAddr(uint256 _numSecondAddr) external returns(address[] memory newAddrList) {
-        require(msg.sender == admin, "caller is not contract admin.");
-        require(_numSecondAddr > 0, "The number of addresses added in batches must be greater than 0.");
-        // 部署合约的data
-        bytes memory codeData = type(SimpleTransferToken).creationCode;
-        assembly {
-            // 计算hash
-            mstore(0, simpleLevelTwoAddrList.slot)
-            let hash := keccak256(0, 32)
-
-            newAddrList := mload(0x40)
-            // 保存新增列表长度
-            mstore(newAddrList, _numSecondAddr)
-            // 获取原来动态数组长度
-            let len := sload(simpleLevelTwoAddrList.slot)
-            for {let i := 0} lt(i, _numSecondAddr) {i := add(i, 1)} {
-                // 创建合约
-                let addr := create(0, add(codeData, 0x20), mload(codeData))
-                // 保存地址到新增列表
-                mstore(add(add(newAddrList, 0x20), mul(i, 0x20)), addr)
-                // 保存数据
-                sstore(add(hash, add(len, i)), addr)
-                // 更新长度
-                sstore(simpleLevelTwoAddrList.slot, add(add(len, i), 1))
-            }
-            // 总字节数
-            let byteSize := mul(_numSecondAddr, 0x20)
-            mstore(0x40, add(newAddrList, and(add(add(byteSize, 0x20), 0x1f), not(0x1f))))
-        }
-        
-        // 批量部署转账合约(二级地址)
-        // 记录事件
-        emit BatchAddSimpleLevelTwoAddr(newAddrList);
-    }
-
-    /// @notice 查询商户一级地址
-    /// @return address 返回商户一级地址
-    function getLevelOneAddr() external view returns(address) {
-        return levelOneAddr;
-    }
-
-    /// @notice 查询商户二级地址(多签合约)
-    /// @return address 返回商户二级地址
-    function getLevelSecAddrList() external view returns(address[] memory) {
-        return levelTwoAddrList;
-    }
-
-    /// @notice 查询商户二级地址（普通，非多签合约）
-    /// @return address 返回商户二级地址
-    function getSimpleLevelSecAddrList() external view returns(address[] memory) {
-        return simpleLevelTwoAddrList;
+        // 创建一级地址成功事件
+        emit Initialize(admin);
     }
 
     // 更新管理员地址
-    function transferAdminShip(address newAdmin) external {
+    function transferAdminShip(address _newAdmin) external {
         require(msg.sender == admin, "caller is not contract admin");
-        admin = newAdmin;
+        admin = _newAdmin;
     }
 
     /// @notice 设置转账合约的多签地址
-    /// @param _levelTwoAddr 二级地址，转账token的合约地址
+    /// @param _businessId 商户地址
     /// @param _multiSignAddr 多签地址
-    function SetMultiSignAddr(address _levelTwoAddr, address _multiSignAddr) external {
+    function SetMultiSignAddr(string memory _businessId, address _multiSignAddr) external {
         require(_multiSignAddr != address(0), "The multisignature address cannot be set to the 0 address");
-        // 初始化合约对象
-        TransferToken obj = TransferToken(_levelTwoAddr);
-        address multiSignAddr = obj.GetMultiSignAddr();
-        require(multiSignAddr != _multiSignAddr, "The set multi-signature address is the same as the old address, so there is no need to set it.");
-        if(multiSignAddr == address(0)) {
-            // 未设置多签地址
-            require(msg.sender == admin, "caller is not contract admin");
+        address multiSignAddr = businessIdToMultiSignAddr[_businessId];
+        if(address(0) == multiSignAddr) {
+            require(tx.origin == admin, "The caller is not admin address");
         } else {
-            // 已设置多签地址
-            require(msg.sender == multiSignAddr, "caller is not original multisigner address");
+            require(tx.origin == multiSignAddr, "The caller is not the original multiple signature address");
         }
-        
-        obj.SetMultiSignAddr(_multiSignAddr);
-        emit SetMultiSignAddrEvent(msg.sender, _levelTwoAddr, _multiSignAddr);
+        // 修改管理员地址
+        businessIdToMultiSignAddr[_businessId] = _multiSignAddr;
+
+        emit SetMultiSignAddrEvent(msg.sender, _businessId, _multiSignAddr);
     }
 
     /// @notice 转账请求(由admin发起)
     /// @dev 根据Token合约地址，发起token转账请求，
     ///      此请求目的：将本合约地址的Token数量转到目标地址。
+    /// @param _businessId 商户地址
     /// @param _tokenAddr 转账token的合约地址
-    /// @param _levelTwoAddr 二级地址，转账token的合约地址
     /// @param _to 接收token的地址
     /// @param _amount 转账的Token数量
-    function TransferRequest(address _tokenAddr, address _levelTwoAddr, address _to, uint256 _amount) external {
+    function TransferRequest(string memory _businessId, address _tokenAddr, address _to, uint256 _amount) external {
         require(msg.sender == admin, "caller is not contract admin");
-        MultiSign memory record;
+        MultiSignInfo memory record;
+        record.businessId = _businessId;
         record.tokenAddr = _tokenAddr;
-        record.levelTwoAddr = _levelTwoAddr;
         record.receiver = _to;
         record.amount = _amount;
         // 管理员签名状态
         record.state = 0;
         // 生成记录Id
-        bytes memory input = abi.encodePacked(admin, _levelTwoAddr, countMultiSignRecords);
+        bytes memory input = abi.encodePacked(admin, this, _businessId, counts);
         // 截取前面8个字节作为记录Id
         uint64 recordId = uint64(uint256(keccak256(input)));
         mapMultiSignRecord[recordId] = record;
-        countMultiSignRecords++;
+        counts++;
         // 判断转账状态
-        emit TransferRequestEvent(recordId, msg.sender, _levelTwoAddr, _tokenAddr, _to, _amount);
+        emit TransferRequestEvent(recordId, msg.sender, _businessId, _tokenAddr, _to, _amount);
     }
 
     /// @notice 交易确认
@@ -243,14 +130,25 @@ contract USafe {
     ///      此请求目的：将本合约地址的Token数量转到目标地址。
     /// @param _recordId 多签记录Id
     function ConfirmTransaction(uint64 _recordId) external {
-        MultiSign storage record = mapMultiSignRecord[_recordId];
-        require(record.tokenAddr != address(0), "");
-        require(record.levelTwoAddr != address(0), "");
-        require(record.receiver != address(0), "");
+        MultiSignInfo storage record = mapMultiSignRecord[_recordId];
+        require(record.tokenAddr != address(0), "tokenAddr is null");
+        require(record.receiver != address(0), "receiver is null");
         require(record.state == 0, "The record id does not exist or the administrator does not sign or the multisigning has been completed");
-        // 初始化合约对象
-        TransferToken obj = TransferToken(record.levelTwoAddr);
-        obj.ConfirmTransaction(record.tokenAddr, record.receiver, record.amount);
+
+        string memory businessId = record.businessId;
+        address multiSignAddr = businessIdToMultiSignAddr[businessId];
+        require(msg.sender == multiSignAddr, "sender is not multi sign address");
+        bytes memory callData = abi.encodeWithSignature("transfer(address,uint256)", record.receiver, record.amount);
+        address tokenAddr = record.tokenAddr;
+        assembly {
+            let result := call(gas(), tokenAddr, 0, add(callData, 0x20), mload(callData), 0, 0)
+            if iszero(result) {
+                invalid()
+            }
+        }
+
+        // 判断转账状态
+        emit TransferERC20Token(msg.sender, address(this), record.receiver, record.amount);
         // 修改状态
         record.state = 1;
         emit ConfirmTransactionEvent(_recordId, msg.sender);
@@ -258,11 +156,20 @@ contract USafe {
 
     /// @notice 查询多签记录
     /// @return _recordId 多签记录id
-    function getMultiSignRecord(uint64 _recordId) external view returns(MultiSign memory) {
+    function GetMultiSignRecord(uint64 _recordId) external view returns(MultiSignInfo memory) {
         return mapMultiSignRecord[_recordId];
+    }
+
+    function getAdmin() external view returns(address) {
+        return admin;
     }
 
     function isAdmin(address _addr) external view returns(bool) {
         return (admin == _addr);
+    }
+
+    function GetMultiSignAddr(string memory _businessId) view external returns(address)  {
+        address multiSignAddr = businessIdToMultiSignAddr[_businessId];
+        return multiSignAddr;
     }
 }

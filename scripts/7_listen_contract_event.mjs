@@ -9,22 +9,22 @@
 注意：
 1.部署USafe后，需要重启此监听服务；
 2."web3": "^1.7.3"的事件订阅方式和4.*的方式不同；
-
 */ 
+
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const hre = require("hardhat");
 const configFile = process.cwd() + "/scripts/config.json";
-console.log("configFile:", configFile);
+const usafeFile = process.cwd() + "/artifacts/contracts/USafe.sol/USafe.json";
+// console.log("configFile:", configFile);
 const jsonfile = require('jsonfile');
 import {InitMySql, UpdateData, QueryDataByValues, InsertData, CloseDB} from "../src/utils/mysql.js";
 // const Web3 = require("web3")
 import {Web3} from "web3";
-import {usafeAbi} from "../src/utils/usafeAbi.js";
+// import {usafeAbi} from "../src/utils/usafeAbi.js";
 
 // 监听设置转账合约的多签地址事件
 /// @notice 设置转账合约的多签地址
-/// @param _levelTwoAddr 二级地址，转账token的合约地址
 /// @param _multiSignAddr 多签地址
 async function listenSetMultiSignAddrEvent(usafeContract) {
   // 监听 USafe SetMultiSignAddrEvent 事件
@@ -42,30 +42,30 @@ async function listenSetMultiSignAddrEvent(usafeContract) {
       // console.log('SetMultiSignAddr event detected!, Event:', event);
       console.log("================================================");
       console.log('SetMultiSignAddrEvent:');
-      // console.log(`_caller: ${result._caller}`);
-      console.log(`_levelTwoAddr: ${result._levelTwoAddr}`);
-      // console.log(`_multiSignAddr: ${result._multiSignAddr}`);
+      console.log(`_caller: ${result._caller}`);
+      console.log(`_businessId: ${result._businessId}`);
+      console.log(`_multiSignAddr: ${result._multiSignAddr}`);
       console.log("================================================");
 
       // 查询t_transfer_token_info表，记录存在即更新，否则插入
       // 查询
-      const selectSql = `select * from t_transfer_token_info where contract_addr = ?`;
-      let values = [result._levelTwoAddr];
+      const selectSql = `select * from t_multi_sign_address_info where business_id = ?`;
+      let values = [result._businessId];
       let data = await QueryDataByValues(selectSql, values);
-      console.log('select data from t_transfer_token_info successfully, data:', data);
+      console.log('select data from t_multi_sign_address_info successfully, data:', data);
       // 存在则更新
       if(data.length > 0) {
         // update
-        const updateSql = `UPDATE t_transfer_token_info SET multi_sign_addr = ? WHERE contract_addr = ?`;
-        values = [result._multiSignAddr, result._levelTwoAddr];
+        const updateSql = `UPDATE t_multi_sign_address_info SET multi_sign_addr = ? WHERE business_id = ?`;
+        values = [result._multiSignAddr, result._businessId];
         data = await UpdateData(updateSql, values);
-        console.log('update t_transfer_token_info successfully, results:', data);
+        console.log('update t_multi_sign_address_info successfully, results:', data);
       } else {
-        // 插入数据到表中(t_transfer_token_info)
-        const insertSql = `INSERT INTO t_transfer_token_info (contract_addr, multi_sign_addr) VALUES (?, ?)`;
-        values = [result._levelTwoAddr, result._multiSignAddr];
+        // 插入数据到表中(t_multi_sign_address_info)
+        const insertSql = `INSERT INTO t_multi_sign_address_info (business_id, multi_sign_addr) VALUES (?, ?)`;
+        values = [result._businessId, result._multiSignAddr];
         data = await InsertData(insertSql, values);
-        console.log('insert transfer token info successfully, results:', data);
+        console.log('insert t_multi_sign_address_info successfully, results:', data);
       }
   });
 
@@ -76,7 +76,6 @@ async function listenSetMultiSignAddrEvent(usafeContract) {
 /// @notice 转账请求事件
 /// @param _recordId 记录Id
 /// @param _caller 发起转账合约转账调用的账户地址, 必须和转账合约的admin相同
-/// @param _levelTwoAddr 付款地址，即转账合约地址
 /// @param _tokenAddr token合约地址
 /// @param _to 收款地址
 /// @param _amount 转账金额
@@ -93,19 +92,18 @@ async function listenTransferRequestEvent(usafeContract) {
     }
     const result = event.returnValues;
     console.log("================================================");
-    console.log(`TransferRequestEvent:`);
+    console.log(`TransferRequestEvent:`, result);
 
     console.log(`txHash:`, event.transactionHash)
     console.log(`_recordId: ${result._recordId}`);
     console.log(`_caller: ${result._caller}`);
-    console.log(`_levelTwoAddr: ${result._levelTwoAddr}`);
+    console.log(`_businessId: ${result._businessId}`);
     console.log(`_tokenAddr: ${result._tokenAddr}`);
     console.log(`_to: ${result._to}`);
     console.log(`_amount: ${result._amount}`);
     console.log("================================================");
-    
+
     // 查询t_multi_sign_record表，记录存在即更新，否则插入
-    // 查询
     const selectSql = `select * from t_multi_sign_record where record_id = ? and state=0`;
     let values = [result._recordId];
     let records = await QueryDataByValues(selectSql, values);
@@ -114,8 +112,8 @@ async function listenTransferRequestEvent(usafeContract) {
     if(0 == records.length) {
       // 插入多签记录到数据库表中
       // 写入数据库
-      let insertSql = `INSERT INTO t_multi_sign_record (record_id, admin_addr, token_addr, transfer_token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-      values = [result._recordId, result._caller, result._tokenAddr, result._levelTwoAddr, result._to, result._amount, 0];
+      let insertSql = `INSERT INTO t_multi_sign_record (record_id, business_id, admin_addr, token_addr, receiver, amount, state) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      values = [result._recordId, result._businessId, result._caller, result._tokenAddr, result._to, result._amount, 0];
       let data = await InsertData(insertSql, values);
       console.log('insert multi sign record successfully, data:', data);
 
@@ -174,6 +172,10 @@ async function listenConfirmTransactionEvent(usafeContract) {
 async function main() {
   await InitMySql();
   let config = await jsonfile.readFileSync(configFile);
+  const usafeInfo = await jsonfile.readFileSync(usafeFile);
+  const usafeAbi = usafeInfo.abi;
+  // console.log("usafe abi:", usafeAbi);
+  
   const web3 = new Web3(config.ethSeries.wsUrl);
   const usafeContract = new web3.eth.Contract(usafeAbi, config.ethSeries.usafeAddr);
   // 启动事件监听

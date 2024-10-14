@@ -33,9 +33,9 @@ async function main() {
   console.log("start to get multi sign record...");
   config.ethSeries.recordList.forEach(async (recordId, index) => {
         // 判断事件名称
-      const multiSignRes = await usafe.getMultiSignRecord(recordId);
+      const multiSignRes = await usafe.GetMultiSignRecord(recordId);
       console.log("recordId:", recordId, 
-        ", multiSign info: [tokenAddr:", multiSignRes[0], ", levelTwoAddr:", multiSignRes[1],
+        ", multiSign info: [businessId:", multiSignRes[0], ", tokenAddr:", multiSignRes[1], 
         ", receiver:", multiSignRes[2], ", amount:", multiSignRes[3], ", state:", multiSignRes[4], "]");
   });
 }

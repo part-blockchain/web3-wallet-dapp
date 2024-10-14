@@ -3,19 +3,6 @@ export const usafeAbi = [
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "_levelTwoAddrList",
-        "type": "address[]"
-      }
-    ],
-    "name": "BatchAddLevelTwoAddr",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "uint64",
         "name": "_recordId",
@@ -37,7 +24,7 @@ export const usafeAbi = [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_levelOneAddr",
+        "name": "_admin",
         "type": "address"
       }
     ],
@@ -55,9 +42,9 @@ export const usafeAbi = [
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_levelTwoAddr",
-        "type": "address"
+        "internalType": "string",
+        "name": "_businessId",
+        "type": "string"
       },
       {
         "indexed": true,
@@ -67,6 +54,37 @@ export const usafeAbi = [
       }
     ],
     "name": "SetMultiSignAddrEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_caller",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TransferERC20Token",
     "type": "event"
   },
   {
@@ -86,9 +104,9 @@ export const usafeAbi = [
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_levelTwoAddr",
-        "type": "address"
+        "internalType": "string",
+        "name": "_businessId",
+        "type": "string"
       },
       {
         "indexed": false,
@@ -128,9 +146,74 @@ export const usafeAbi = [
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_businessId",
+        "type": "string"
+      }
+    ],
+    "name": "GetMultiSignAddr",
+    "outputs": [
+      {
         "internalType": "address",
-        "name": "_levelTwoAddr",
+        "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "_recordId",
+        "type": "uint64"
+      }
+    ],
+    "name": "GetMultiSignRecord",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "businessId",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenAddr",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "state",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct USafe.MultiSignInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_businessId",
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -146,13 +229,13 @@ export const usafeAbi = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_tokenAddr",
-        "type": "address"
+        "internalType": "string",
+        "name": "_businessId",
+        "type": "string"
       },
       {
         "internalType": "address",
-        "name": "_levelTwoAddr",
+        "name": "_tokenAddr",
         "type": "address"
       },
       {
@@ -172,91 +255,13 @@ export const usafeAbi = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_numSecondAddr",
-        "type": "uint256"
-      }
-    ],
-    "name": "batchAddLevelTwoAddr",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "newAddrList",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "getLevelOneAddr",
+    "name": "getAdmin",
     "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getLevelSecAddrList",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint64",
-        "name": "_recordId",
-        "type": "uint64"
-      }
-    ],
-    "name": "getMultiSignRecord",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "tokenAddr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "levelTwoAddr",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "receiver",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "state",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct USafe.MultiSign",
-        "name": "",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -292,7 +297,7 @@ export const usafeAbi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "_newAdmin",
         "type": "address"
       }
     ],
